@@ -1,0 +1,43 @@
+terminator = '|' | '\n';
+
+white_space = ? whitespace characters ? ;
+all_characters = ? all visible characters ? ;
+
+letter = 'a'...'z' | 'A'...'Z' ;
+digit = '0'...'9';
+
+identifier = letter { letter | digit | "_" } ;
+string_literal = ('"' { all_characters } '"') | ("'" { all_characters } "'");
+number_literal = digit { digit };
+character_literal = '\t' | '\n' | '\r' | ? etc. ?;
+literal = string_literal | number_literal | character_literal;
+
+Expression = ('(' Expression ')') | literal | identifier | ExpressionList | BinaryOperation | UnaryOperation | Call | Subscript | Conditional | ForEach;
+Statement = Definition;
+
+ExpressionList = Expression { ',' ExpressionList };
+IdentifierList = identifier { ',' identifier };
+
+
+Definition = identifier [Parameters] DefinitionBody;
+Parameters = '(' identifierList ')' ;
+DefinitionBody = ( "=>" Expression ) | ( '{' Program '}' );
+
+
+BinaryOperation = Expression BinaryOperator Expression;
+BinaryOperator = "=" | "!=" | "<" | ">" | "<=" | ">=" | "+" | "-" | "*" | "/" | "%" | "++" | "and" | "or";
+
+UnaryOperation = UnaryOperator Expression;
+UnaryOperator = "not" | '#';
+
+Conditional = Expression "if" Expression "else" Expression;
+ForEach = Expression "for" (identifier|Parameters) "in" Expression;
+
+Call = Expression ['(' Expression ')'] [ WS Expression ];
+
+Subscript = Expression '[' [Expression] [':' [ Expression ] ] [':' Expression] ']';
+
+
+Program = ProgramLine { Terminator ProgramLine };
+ProgramLine = Statement | Expression;
+
