@@ -38,48 +38,37 @@ a(10, 20)
 `
 
 	tokens := make(chan Token)
-	// errs := make(chan error)
 	go lexProgram(prog, tokens)
 	// for {
 	// 	showToken(<-tokens)
 	// }
 	tokMan := createTokenChanManager(tokens)
-	err, ast := parseProgram(&tokMan, TT_EOF)
+	ast := parseProgram(&tokMan, TT_EOF)
 	println(printAst(ast).Print())
-	if err != nil {
-		switch e := err.(type) {
-		case myErr:
-			fmt.Printf("%d:%d:%d - %s\n", e.pos.line, e.pos.start, e.pos.end, e.msg)
-		default:
-			println(e.Error())
-		}
-	} else {
-		for _, n := range ast.lines {
-			err, val := n.interpret(input)
-			if err != nil {
-				switch e := err.(type) {
-				case myErr:
-					fmt.Printf("%d:%d:%d - %s\n", e.pos.line, e.pos.start, e.pos.end, e.msg)
-				default:
-					println(e.Error())
-				}
-			} else {
-				switch n.(type) {
-				case *Definition:
-					break
-				default:
-					err, s := toString(val, input)
-					if err != nil {
-						printError(err)
-					} else {
-						println(s)
-					}
-				}
+	for _, n := range ast.lines {
+		runLine(n, input)
+	}
+}
+
+func runLine(node Node, input string) {
+	defer func() {
+		if err := recover(); err != nil {
+			switch e := err.(type) {
+			case error:
+				printError(e)
+			default:
+				panic(err)
 			}
 		}
-		// fmt.Println(printAst(ast).Print())
+	}()
+	val := node.interpret(input)
+	switch node.(type) {
+	case *Definition:
+		break
+	default:
+		s := toString(val, input)
+		println(s)
 	}
-
 }
 
 func printError(err error) {
