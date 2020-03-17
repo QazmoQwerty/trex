@@ -47,155 +47,125 @@ func (this DefinitionValue) String() string {
 
 var definitions = []map[string]Definition{map[string]Definition{}}
 
-func (this Program) interpret(input string) (error, Value) {
+func (this Program) interpret(input string) Value {
 	ret := StringValue{""}
 	definitions = append(definitions, map[string]Definition{})
 	for i, n := range this.lines {
-		err, s := n.interpret(input)
-		if err != nil {
-			return err, nil
-		}
+		s := n.interpret(input)
+
 		switch s.(type) {
 		case NullValue, *NullValue:
 			break
 		default:
-			err, ret.val = toString(s, input)
-			if err != nil {
-				return err, nil
-			}
+			ret.val = toString(s, input)
+
 			if i+1 != len(this.lines) {
 				ret.val += "\n"
 			}
 		}
 	}
 	definitions = definitions[:len(definitions)-1]
-	return nil, ret
+	return ret
 }
 
-func toString(val Value, input string) (error, string) {
+func toString(val Value, input string) string {
 	switch t := val.(type) {
 	case *NullValue:
-		return nil, ""
+		return ""
 	case DefinitionValue:
-		err, v := t.def.content.interpret(input)
-		if err != nil {
-			return err, ""
-		}
-		return nil, v.String()
+		v := t.def.content.interpret(input)
+		return v.String()
 	default:
-		return nil, val.String()
+		return val.String()
 	}
 }
 
-func (this Definition) interpret(input string) (error, Value) {
+func (this Definition) interpret(input string) Value {
 	definitions[len(definitions)-1][this.id.id] = this
-	return nil, NullValue{}
+	return NullValue{}
 }
 
-func (this Literal) interpret(input string) (error, Value) {
-	return nil, StringValue{this.value}
+func (this Literal) interpret(input string) Value {
+	return StringValue{this.value}
 }
 
-func (this Identifier) interpret(input string) (error, Value) {
+func (this Identifier) interpret(input string) Value {
 	for i := len(definitions) - 1; i >= 0; i-- {
 		if val, ok := definitions[i][this.id]; ok {
 			// return val.content.interpret(input)
-			return nil, DefinitionValue{val}
+			return DefinitionValue{val}
 		}
 	}
-	return myErr{"undefined identifier \"" + this.id + "\"", this.pos, ERR_INTERPRETER}, nil
+	panic(myErr{"undefined identifier \"" + this.id + "\"", this.pos, ERR_INTERPRETER})
 }
 
-func (this BinaryOperation) interpret(input string) (error, Value) {
-	err, left := this.left.interpret(input)
-	if err != nil {
-		return err, nil
-	}
-	err, right := this.right.interpret(input)
-	if err != nil {
-		return err, nil
-	}
-	err, leftStr := toString(left, input)
-	if err != nil {
-		return err, nil
-	}
-	err, rightStr := toString(right, input)
-	if err != nil {
-		return err, nil
-	}
+func (this BinaryOperation) interpret(input string) Value {
+	left := this.left.interpret(input)
+
+	right := this.right.interpret(input)
+
+	leftStr := toString(left, input)
+
+	rightStr := toString(right, input)
+
 	switch this.op.ty {
 	case TT_STRING_ADD:
-		return nil, StringValue{leftStr + rightStr}
+		return StringValue{leftStr + rightStr}
 	default:
-		return myErr{"unimplemented binary operator \"" + this.op.str + "\"", this.pos, ERR_INTERPRETER}, nil
+		panic(myErr{"unimplemented binary operator \"" + this.op.str + "\"", this.pos, ERR_INTERPRETER})
 	}
 }
 
-func (this UnaryOperation) interpret(input string) (error, Value) {
-	return myErr{"unimplemented interpret method 'unaryoperation'", this.pos, ERR_INTERPRETER}, nil
+func (this UnaryOperation) interpret(input string) Value {
+	panic(myErr{"unimplemented interpret method 'unaryoperation'", this.pos, ERR_INTERPRETER})
 }
 
-func (this Conditional) interpret(input string) (error, Value) {
-	err, left := this.condition.interpret(input)
-	if err != nil {
-		return err, nil
-	}
+func (this Conditional) interpret(input string) Value {
+	left := this.condition.interpret(input)
+
 	if left.String() != "" { // 'true'
-		err, ret := this.thenBranch.interpret(input)
-		if err != nil {
-			return err, nil
-		}
-		return nil, ret
+		ret := this.thenBranch.interpret(input)
+
+		return ret
 	}
-	err, ret := this.elseBranch.interpret(input)
-	if err != nil {
-		return err, nil
-	}
-	return nil, ret
+	ret := this.elseBranch.interpret(input)
+
+	return ret
 }
 
-func (this ForEach) interpret(input string) (error, Value) {
-	return myErr{"unimplemented interpret method4", this.pos, ERR_INTERPRETER}, nil
+func (this ForEach) interpret(input string) Value {
+	panic(myErr{"unimplemented interpret method4", this.pos, ERR_INTERPRETER})
 }
 
-func (this ExpressionList) interpret(input string) (error, Value) {
+func (this ExpressionList) interpret(input string) Value {
 	list := ListValue{}
 	for _, n := range this.expressions {
-		err, val := n.interpret(input)
-		if err != nil {
-			return err, nil
-		}
+		val := n.interpret(input)
+
 		list.vals = append(list.vals, val)
 	}
-	return nil, list
+	return list
 }
 
-func (this FunctionCall) interpret(input string) (error, Value) {
-	err, val := this.callee.interpret(input)
-	if err != nil {
-		return err, nil
-	}
+func (this FunctionCall) interpret(input string) Value {
+	val := this.callee.interpret(input)
 
 	switch def := val.(type) {
 	default:
-		return myErr{"cannot call non-definition value", this.pos, ERR_INTERPRETER}, nil
+		panic(myErr{"cannot call non-definition value", this.pos, ERR_INTERPRETER})
 	case DefinitionValue:
 		definitions = append(definitions, map[string]Definition{})
 
 		if len(this.params.expressions) != len(def.def.params.identifiers) {
-			return myErr{"incorrect parameter count\ncount is: " + strconv.Itoa(len(this.params.expressions)) + 
-			"\nshould be: " + strconv.Itoa(len(def.def.params.identifiers)), this.pos, ERR_INTERPRETER}, nil
+			panic(myErr{"incorrect parameter count\ncount is: " + strconv.Itoa(len(this.params.expressions)) +
+				"\nshould be: " + strconv.Itoa(len(def.def.params.identifiers)), this.pos, ERR_INTERPRETER})
 		}
 
 		for i := 0; i < len(this.params.expressions); i++ {
-			err, val := this.params.expressions[i].interpret(input)
-			if err != nil {
-				return err, nil
-			}
-			err, str := toString(val, input)
-			if err != nil {
-				return err, nil
-			}
+			val := this.params.expressions[i].interpret(input)
+
+			str := toString(val, input)
+
 			id := Identifier{def.def.params.identifiers[i].id, def.def.pos}
 			prog := Program{[]Node{Literal{str, def.def.pos}}, def.def.pos}
 			param := Definition{id, IdentifierList{}, prog, def.def.pos}
@@ -207,38 +177,30 @@ func (this FunctionCall) interpret(input string) (error, Value) {
 		if this.arg == nil {
 			inputStr = input
 		} else {
-			err, exp := this.arg.interpret(input)
-			if err != nil {
-				return err, nil
-			}
-			err, inputStr = toString(exp, input)
-			if err != nil {
-				return err, nil
-			}
+			exp := this.arg.interpret(input)
+
+			inputStr = toString(exp, input)
+
 		}
 
-		err, ret := def.def.content.interpret(inputStr)
-		if err != nil {
-			return err, nil
-		}
+		ret := def.def.content.interpret(inputStr)
+
 		definitions = definitions[:len(definitions)-1]
-		return nil, ret
+		return ret
 	}
 
 }
 
-func (this Subscript) interpret(input string) (error, Value) {
-	return myErr{"unimplemented interpret method7", this.pos, ERR_INTERPRETER}, nil
+func (this Subscript) interpret(input string) Value {
+	panic(myErr{"unimplemented interpret method7", this.pos, ERR_INTERPRETER})
 }
 
-func (this IdentifierList) interpret(input string) (error, Value) {
+func (this IdentifierList) interpret(input string) Value {
 	list := ListValue{}
 	for _, n := range this.identifiers {
-		err, val := n.interpret(input)
-		if err != nil {
-			return err, nil
-		}
+		val := n.interpret(input)
+
 		list.vals = append(list.vals, val)
 	}
-	return nil, list
+	return list
 }

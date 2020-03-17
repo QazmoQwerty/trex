@@ -1,42 +1,36 @@
 package main
 
-func parseProgram(tokens *TokenChanManager, expected TokenType) (error, *Program) {
+func parseProgram(tokens *TokenChanManager, expected TokenType) *Program {
 	prog := Program{nil, tokens.peek().pos}
 	eatWS(tokens)
-	skipTerminator(tokens)
-	for !eatToken(tokens, expected) {
-		err, node := parse(tokens, 0)
-		if err != nil {
+	eatToken(tokens, TT_TERMINATOR)
+	defer func() {
+		if err := recover(); err != nil {
 			for !eatToken(tokens, TT_TERMINATOR) && !eatToken(tokens, expected) {
 				tokens.next() // forward to the next line since this one is invalid
 			}
-			return err, nil
+			panic(err)
 		}
+	}()
+	for !eatToken(tokens, expected) {
+		node := parse(tokens, 0)
 		prog.lines = append(prog.lines, node)
 		if eatToken(tokens, expected) {
-			return nil, &prog
+			return &prog
 		}
 		expectToken(tokens, TT_TERMINATOR)
 	}
-	return nil, &prog
-}
-
-func skipTerminator(tokens *TokenChanManager) {
-	eatToken(tokens, TT_TERMINATOR)
+	return &prog
 }
 
 func eatWS(tokens *TokenChanManager) bool {
 	return eatToken(tokens, TT_WHITESPACE)
 }
 
-func parse(tokens *TokenChanManager, lastPrecedence byte) (error, Node) {
-	var left Node
-	err, left := nud(tokens)
-	if err != nil {
-		return err, left
-	}
+func parse(tokens *TokenChanManager, lastPrecedence byte) Node {
+	var left Node = nud(tokens)
 	if left == nil {
-		return nil, nil
+		return nil
 	}
 
 	for {
@@ -45,28 +39,16 @@ func parse(tokens *TokenChanManager, lastPrecedence byte) (error, Node) {
 			if ateWS && tokens.peek().ty != TT_TERMINATOR {
 				tokens.insertAtFront(Token{TT_WHITESPACE, " ", tokens.peek().pos})
 			}
-			return nil, left
+			return left
 		}
-
-		err, left = led(tokens, left, ateWS)
-		if err != nil {
-			return err, nil
-		}
+		left = led(tokens, left, ateWS)
 	}
-	// for precedence(tokens.peek()) > lastPrecedence {
-	// 	err, left = led(tokens, left)
-	// 	if err != nil {
-	// 		return err, nil
-	// 	}
-	// }
-	// return nil, left
 }
 
-func expectToken(tokens *TokenChanManager, ty TokenType) error {
+func expectToken(tokens *TokenChanManager, ty TokenType) {
 	if !eatToken(tokens, ty) {
-		return myErr{"\"" + getOperatorByType(ty).str + "\" expected", tokens.peek().pos, ERR_PARSER}
+		panic(myErr{"\"" + getOperatorByType(ty).str + "\" expected", tokens.peek().pos, ERR_PARSER})
 	}
-	return nil
 }
 
 func eatToken(tokens *TokenChanManager, ty TokenType) bool {
@@ -77,68 +59,46 @@ func eatToken(tokens *TokenChanManager, ty TokenType) bool {
 	return false
 }
 
-func parseExpressionList(tokens *TokenChanManager, prec byte) (error, *ExpressionList) {
-	err, exp := parse(tokens, prec)
-	if err != nil {
-		return err, nil
-	}
-	if exp == nil {
-		return nil, nil
-	}
-	err, ret := convertToExpressionList(exp)
-	if err != nil {
-		return err, nil
-	}
-	return nil, ret
+func parseExpressionList(tokens *TokenChanManager, prec byte) *ExpressionList {
+	return convertToExpressionList(parse(tokens, prec))
 }
 
-func parseExpression(tokens *TokenChanManager, prec byte) (error, Expression) {
-	err, node := parse(tokens, prec)
-	if err != nil {
-		return err, nil
-	}
+func parseExpression(tokens *TokenChanManager, prec byte) Expression {
+	return convertToExpression(parse(tokens, prec))
+}
+
+func parseIdentifierList(tokens *TokenChanManager) *IdentifierList {
+	return convertToIdentifierList(parse(tokens, 0))
+}
+
+func convertToExpression(node Node) Expression {
 	if node == nil {
-		return nil, nil
+		return nil
 	}
 	switch v := node.(type) {
 	case Expression:
-		return nil, v
+		return v
 	default:
-		return myErr{"expected an expression", v.getPosition(), ERR_PARSER}, nil
+		panic(myErr{"expected an expression", v.getPosition(), ERR_PARSER})
 	}
 }
 
-func parseIdentifierList(tokens *TokenChanManager) (error, *IdentifierList) {
-	err, node := parse(tokens, 0)
-	if err != nil {
-		return err, nil
+func convertToIdentifier(node Node) *Identifier {
+	if node == nil {
+		return nil
 	}
-	err, ret := convertToIdentifierList(node)
-	if err != nil {
-		return err, nil
-	}
-	return nil, ret
-}
-
-func convertToExpression(node Node) (error, Expression) {
-	switch v := node.(type) {
-	case Expression:
-		return nil, v
-	default:
-		return myErr{"expected an expression", v.getPosition(), ERR_PARSER}, nil
-	}
-}
-
-func convertToIdentifier(node Node) (error, *Identifier) {
 	switch v := node.(type) {
 	case *Identifier:
-		return nil, v
+		return v
 	default:
-		return myErr{"expected an identifier", v.getPosition(), ERR_PARSER}, nil
+		panic(myErr{"expected an identifier", v.getPosition(), ERR_PARSER})
 	}
 }
 
-func convertToIdentifierList(node Node) (error, *IdentifierList) {
+func convertToIdentifierList(node Node) *IdentifierList {
+	if node == nil {
+		return nil
+	}
 	switch v := node.(type) {
 	case *ExpressionList:
 		ret := IdentifierList{[]Identifier{}, v.pos}
@@ -147,139 +107,100 @@ func convertToIdentifierList(node Node) (error, *IdentifierList) {
 			case *Identifier:
 				ret.identifiers = append(ret.identifiers, *id)
 			default:
-				return myErr{"expected an identifier", id.getPosition(), ERR_PARSER}, nil
+				panic(myErr{"expected an identifier", id.getPosition(), ERR_PARSER})
 			}
 		}
-		return nil, &ret
+		return &ret
 	case *IdentifierList:
-		return nil, v
+		return v
 	case *Identifier:
-		return nil, &IdentifierList{[]Identifier{*v}, v.pos}
+		return &IdentifierList{[]Identifier{*v}, v.pos}
 	default:
-		return myErr{"expected an identifier list", v.getPosition(), ERR_PARSER}, nil
+		panic(myErr{"expected an identifier list", v.getPosition(), ERR_PARSER})
 	}
 }
 
-func convertToExpressionList(node Node) (error, *ExpressionList) {
+func convertToExpressionList(node Node) *ExpressionList {
+	if node == nil {
+		return nil
+	}
 	switch v := node.(type) {
 	case *ExpressionList:
-		return nil, v
+		return v
 	case Expression:
-		return nil, &ExpressionList{[]Expression{v}, v.getPosition()}
+		return &ExpressionList{[]Expression{v}, v.getPosition()}
 	default:
-		return myErr{"expected an expression list", v.getPosition(), ERR_PARSER}, nil
+		panic(myErr{"expected an expression list", v.getPosition(), ERR_PARSER})
 	}
 }
 
-func nud(tokens *TokenChanManager) (error, Expression) {
+func nud(tokens *TokenChanManager) Expression {
 	eatWS(tokens)
 	token := tokens.peek()
 	switch tokens.peek().ty {
 	case TT_IDENTIFIER:
 		tokens.next()
-		node := Identifier{token.data, token.pos}
-		return nil, &node
+		return &Identifier{token.data, token.pos}
 	case TT_LITERAL:
 		tokens.next()
-		node := Literal{token.data, token.pos}
-		return nil, &node
+		return &Literal{token.data, token.pos}
 	case TT_PARENTHESIS_OPEN:
 		tokens.next()
-		err, inner := parseExpression(tokens, 0)
-		if err != nil {
-			return err, nil
-		}
-		err = expectToken(tokens, TT_PARENTHESIS_CLOSE)
-		if err != nil {
-			return err, nil
-		}
-		return nil, inner
+		inner := parseExpression(tokens, 0)
+		expectToken(tokens, TT_PARENTHESIS_CLOSE)
+		return inner
 	case TT_SQUARE_BRACKETS_OPEN:
 		tokens.next()
-
-		err, first := parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
-		if err != nil {
-			return err, nil
-		}
-		node := Subscript{nil, first, nil, nil, token.pos}
+		node := Subscript{nil, nil, nil, nil, token.pos}
+		node.idx1 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			err, node.idx2 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
-			if err != nil {
-				return err, nil
-			}
+			node.idx2 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx2 == nil {
 				node.idx2 = &Literal{"", tokens.peek().pos}
 			}
 		} else if eatToken(tokens, TT_SQUARE_BRACKETS_CLOSE) {
-			return nil, &node
+			return &node
 		} else {
-			return myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER}, nil
+			panic(myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER})
 		}
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			err, node.idx3 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
-			if err != nil {
-				return err, nil
-			}
+			node.idx3 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx3 == nil {
 				node.idx3 = &Literal{"", tokens.peek().pos}
 			}
 		} else if eatToken(tokens, TT_SQUARE_BRACKETS_CLOSE) {
-			return nil, &node
+			return &node
 		} else {
-			return myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER}, nil
+			panic(myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER})
 		}
 		eatWS(tokens)
-		err = expectToken(tokens, TT_SQUARE_BRACKETS_CLOSE)
-		if err != nil {
-			return err, nil
-		}
-		return nil, &node
+		expectToken(tokens, TT_SQUARE_BRACKETS_CLOSE)
+		return &node
 	}
 	if isUnaryOperator(token.ty) {
 		tokens.next()
-		op := getOperator(token.data)
-		err, exp := parseExpression(tokens, leftPrecedence(token))
-		if err != nil {
-			return err, nil
-		}
-		ret := UnaryOperation{exp, op, token.pos}
-		return nil, &ret
+		return &UnaryOperation{parseExpression(tokens, leftPrecedence(token)), getOperator(token.data), token.pos}
 	}
-	return nil, nil
+	return nil
 }
 
-func led(tokens *TokenChanManager, node Node, ateWS bool) (error, Node) {
+func led(tokens *TokenChanManager, node Node, ateWS bool) Node {
 	token := tokens.peek()
-	err, left := convertToExpression(node)
-	if err != nil {
-		return err, nil
-	}
+	left := convertToExpression(node)
 	switch token.ty {
 	case TT_IF:
 		tokens.next()
-		err, cond := parseExpression(tokens, 0)
-		if err != nil {
-			return err, nil
-		}
+		cond := parseExpression(tokens, 0)
 		eatWS(tokens)
-		err = expectToken(tokens, TT_ELSE)
-		if err != nil {
-			return err, nil
-		}
-		err, elseB := parseExpression(tokens, 0)
-		if err != nil {
-			return err, nil
-		}
+		expectToken(tokens, TT_ELSE)
+		elseB := parseExpression(tokens, 0)
 		pos := Position{left.getPosition().line, left.getPosition().start, elseB.getPosition().end}
-		return nil, &Conditional{left, elseB, cond, pos}
+		return &Conditional{left, elseB, cond, pos}
 	case TT_COMMA:
 		tokens.next()
-		err, right := parseExpression(tokens, 0)
-		if err != nil {
-			return err, nil
-		}
+		right := parseExpression(tokens, 0)
 		list := ExpressionList{nil, left.getPosition()}
 		list.expressions = append(list.expressions, left)
 		switch r := right.(type) {
@@ -290,140 +211,85 @@ func led(tokens *TokenChanManager, node Node, ateWS bool) (error, Node) {
 		default:
 			list.expressions = append(list.expressions, r)
 		}
-		return nil, &list
+		return &list
 	case TT_DEFINE:
 		tokens.next()
 		var def Definition
-		err, id := convertToIdentifier(left)
-		if err != nil {
-			return err, nil
-		}
+		id := convertToIdentifier(left)
 		def.id = *id
 		def.pos = id.pos
-		err, prog := parseExpression(tokens, 0)
-		if err != nil {
-			return err, nil
-		}
+		prog := parseExpression(tokens, 0)
 		def.content = Program{[]Node{prog}, prog.getPosition()}
 		def.pos.end = def.content.pos.end
-		return nil, &def
+		return &def
 	case TT_CURLY_BRACES_OPEN:
 		tokens.next()
-		err, id := convertToIdentifier(left)
-		if err != nil {
-			return err, nil
+		return &Definition{
+			*convertToIdentifier(left),
+			IdentifierList{},
+			*parseProgram(tokens, TT_CURLY_BRACES_CLOSE),
+			left.getPosition(),
 		}
-		err, prog := parseProgram(tokens, TT_CURLY_BRACES_CLOSE)
-		if err != nil {
-			return err, nil
-		}
-		return nil, &Definition{*id, IdentifierList{}, *prog, id.pos}
 	case TT_SQUARE_BRACKETS_OPEN:
 		if ateWS {
 			break
 		}
-
 		tokens.next()
-		err, first := parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
-		if err != nil {
-			return err, nil
-		}
+		first := parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 		node := Subscript{left, first, nil, nil, token.pos}
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			err, node.idx2 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
-			if err != nil {
-				return err, nil
-			}
+			node.idx2 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx2 == nil {
 				node.idx2 = &Literal{"", tokens.peek().pos}
 			}
 		} else if eatToken(tokens, TT_SQUARE_BRACKETS_CLOSE) {
-			return nil, &node
+			return &node
 		} else {
-			return myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER}, nil
+			panic(myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER})
 		}
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			err, node.idx3 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
-			if err != nil {
-				return err, nil
-			}
+			node.idx3 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx3 == nil {
 				node.idx3 = &Literal{"", tokens.peek().pos}
 			}
 		} else if eatToken(tokens, TT_SQUARE_BRACKETS_CLOSE) {
-			return nil, &node
+			return &node
 		} else {
-			return myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER}, nil
+			panic(myErr{"expected ']' or ':'", tokens.peek().pos, ERR_PARSER})
 		}
 		eatWS(tokens)
-		err = expectToken(tokens, TT_SQUARE_BRACKETS_CLOSE)
-		if err != nil {
-			return err, nil
-		}
-		return nil, &node
+		expectToken(tokens, TT_SQUARE_BRACKETS_CLOSE)
+		return &node
 	}
 	if getOperator(token.data).isBinary {
 		tokens.next()
-		node := BinaryOperation{left, nil, getOperator(token.data), token.pos}
-		var err error
-		err, node.right = parseExpression(tokens, leftPrecedence(token))
-		if err != nil {
-			return err, nil
-		}
-		return nil, &node
+		return &BinaryOperation{left, parseExpression(tokens, leftPrecedence(token)), getOperator(token.data), token.pos}
 	}
 
-	err, right := parseExpression(tokens, 255)
-	if err != nil {
-		return err, nil
-	}
+	right := parseExpression(tokens, 255)
 	if ateWS {
-		return nil, &FunctionCall{left, ExpressionList{}, right, left.getPosition()}
+		return &FunctionCall{left, ExpressionList{}, right, left.getPosition()}
 	}
 	ateWS = eatWS(tokens)
 	if eatToken(tokens, TT_DEFINE) {
-		err, id := convertToIdentifier(left)
-		if err != nil {
-			return err, nil
-		}
-		err, params := convertToIdentifierList(right)
-		if err != nil {
-			return err, nil
-		}
-		err, exp := parseExpression(tokens, 0)
-		if err != nil {
-			return err, nil
-		}
+		id := convertToIdentifier(left)
+		params := convertToIdentifierList(right)
+		exp := parseExpression(tokens, 0)
 		prog := Program{[]Node{exp}, exp.getPosition()}
-		return nil, &Definition{*id, *params, prog, id.pos}
+		return &Definition{*id, *params, prog, id.pos}
 	}
 	if eatToken(tokens, TT_CURLY_BRACES_OPEN) {
-		err, id := convertToIdentifier(left)
-		if err != nil {
-			return err, nil
+		return &Definition{
+			*convertToIdentifier(left),
+			*convertToIdentifierList(right),
+			*parseProgram(tokens, TT_CURLY_BRACES_CLOSE),
+			left.getPosition(),
 		}
-		err, params := convertToIdentifierList(right)
-		if err != nil {
-			return err, nil
-		}
-		err, prog := parseProgram(tokens, TT_CURLY_BRACES_CLOSE)
-		if err != nil {
-			return err, nil
-		}
-		return nil, &Definition{*id, *params, *prog, id.pos}
-	}
-	err, params := convertToExpressionList(right)
-	if err != nil {
-		return err, nil
 	}
 	if !ateWS {
-		return nil, &FunctionCall{left, *params, nil, left.getPosition()}
+		return &FunctionCall{left, *convertToExpressionList(right), nil, left.getPosition()}
 	}
-	err, arg := parseExpression(tokens, functionPrecedence)
-	if err != nil {
-		return err, nil
-	}
-	return nil, &FunctionCall{left, *params, arg, left.getPosition()}
+	return &FunctionCall{left, *convertToExpressionList(right), parseExpression(tokens, functionPrecedence), left.getPosition()}
 }

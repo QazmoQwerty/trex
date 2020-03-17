@@ -4,7 +4,7 @@ type Node interface {
 	getPosition() Position
 	toString() string
 	getChildren() []Node
-	interpret(input string) (error, Value)
+	interpret(input string) Value
 }
 
 type Statement interface {
