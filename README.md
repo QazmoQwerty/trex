@@ -2,6 +2,8 @@
 
 A toy language for quick & easy string manipulation.
 
+For more info read the [language specification](docs/trex-spec,md)
+
 # Code Examples
 
 
