@@ -112,6 +112,8 @@ func getOperator(str string) Operator {
 		return Operator{TT_FOR, str, false, 0, false}
 	case "in":
 		return Operator{TT_IN, str, false, 0, false}
+	case "where":
+		return Operator{TT_WHERE, str, false, 0, false}
 	default:
 		return Operator{TT_UNKNOWN, str, false, 0, false}
 	}
@@ -191,6 +193,8 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_FOR, "for", false, 0, false}
 	case TT_IN:
 		return Operator{TT_IN, "in", false, 0, false}
+	case TT_WHERE:
+		return Operator{TT_WHERE, "where", false, 0, false}
 	default:
 		return Operator{TT_UNKNOWN, "", false, 0, false}
 	}
@@ -254,4 +258,5 @@ const (
 	TT_MOD
 	TT_INDIRECTION
 	TT_DEFINE
+	TT_WHERE
 )

@@ -31,12 +31,13 @@ UnaryOperation = UnaryOperator Expression;
 UnaryOperator = "not" | '#';
 
 Conditional = Expression "if" Expression "else" Expression;
-ForEach = Expression "for" (identifier|Parameters) "in" Expression;
+
+Comprehension = Expression ForClause { ForClause } ["where" Expression];
+ForClause = "for" identifier "in" Expression;
 
 Call = Expression ['(' Expression ')'] [ WS Expression ];
 
 Subscript = Expression '[' [Expression] [':' [ Expression ] ] [':' Expression] ']';
-
 
 Program = ProgramLine { Terminator ProgramLine };
 ProgramLine = Statement | Expression;

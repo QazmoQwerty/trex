@@ -204,7 +204,7 @@ func led(tokens *TokenChanManager, node Node, ateWS bool) Node {
 		list := ExpressionList{nil, left.getPosition()}
 		list.expressions = append(list.expressions, left)
 		switch r := right.(type) {
-		case ExpressionList:
+		case *ExpressionList:
 			for _, i := range r.expressions {
 				list.expressions = append(list.expressions, i)
 			}

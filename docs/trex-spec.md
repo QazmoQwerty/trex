@@ -224,7 +224,7 @@ Lists are constructed using the ',' operator.
 
 ```
 >>> 1, 2, 3, 4
-[1, 2, 3, 4]
+1, 2, 3, 4
 >>> (1, 2, 3, 4)[0]
 1
 ```
@@ -293,7 +293,7 @@ The following are binary operators:
 /               |   numeric division
 %               |   numeric remainder
 <<              |   string addition
-**              |   string multiplication
+\*\*            |   string multiplication
 <               |   smaller than
 <=              |   smaller or equal to 
 \>              |   greater than
@@ -332,4 +332,21 @@ The '#' operator is used to pass definitions without calling them.
 >>> bar(#foo)
 aaaa
 >>> bar(foo)  // foo will be called with no parameters causing an error
+```
+
+## Comprehensions
+
+```EBNF
+Comprehension   = Expression ForClause { ForClause } ["where" Expression];
+ForClause       = "for" identifier "in" Expression;
+```
+
+Comprehensions provide a concise way to create lists.
+
+```
+>>> foo => 0123
+>>> i ** 2 for i in foo
+00, 11, 22, 33
+>>> x*y for x in foo for y in foo where x*y != 0
+1, 2, 3, 2, 4, 6, 3, 6, 9
 ```

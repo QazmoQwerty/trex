@@ -12,9 +12,11 @@ func main() {
 	const prog = `
 //d=>(as(10))10
 
-fact(n) => 1 if n = 0 else n * fact(n - 1)
+// fact(n) => 1 if n = 0 else n * fact(n - 1)
 
-fact(4)
+// fact(4)
+
+(1, 2, 3, 4), 1, 2, 3
 
 // 1 + 'a'
 

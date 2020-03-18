@@ -26,14 +26,18 @@ func (this StringValue) String() string {
 }
 
 func (this ListValue) String() string {
-	ret := "["
+	ret := ""
 	for i, v := range this.vals {
 		if i != 0 {
 			ret += ", "
 		}
-		ret += v.String()
+		switch v.(type) {
+		case ListValue:
+			ret += "(" + v.String()	+ ")"
+		default: 
+			ret += v.String()
+		}	
 	}
-	ret += "]"
 	return ret
 }
 
