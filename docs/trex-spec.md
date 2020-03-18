@@ -296,8 +296,8 @@ The following are binary operators:
 **              |   string multiplication
 <               |   smaller than
 <=              |   smaller or equal to 
->               |   greater than
->=              |   greater or equal to
+\>              |   greater than
+\>=             |   greater or equal to
 =               |   equal
 !=              |   not equal
 and             |   logical and
