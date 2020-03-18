@@ -106,7 +106,7 @@ span multiple lines"
 \t
 ```
 
-## A Program
+## Programs
 
 ```EBNF
 Program     = ProgramLine { Terminator ProgramLine };
@@ -150,10 +150,12 @@ bbb
 ## Subscripts
 
 ```EBNF
-Subscript = Expression '[' [Expression] [':' [ Expression ] ] [':' Expression] ']';
+Subscript = [Expression] '[' [Expression] [':' [ Expression ] ] [':' Expression] ']';
 ```
 
 Subscript expressions construct a substring or list from a string or a list.
+
+The expression upon which the subscript acts may be omitted, in which case it will default to the argument value.
 
 A subscript can get 0-3 indices, which must all evaluate to a string which is convertible to a number.
 
@@ -212,3 +214,122 @@ A negative index (as one of the first two indices) counts from the back of the s
 0123
 ```
 
+## Lists
+
+```EBNF
+ExpressionList = Expression { ',' ExpressionList };
+```
+
+Lists are constructed using the ',' operator.
+
+```
+>>> 1, 2, 3, 4
+[1, 2, 3, 4]
+>>> (1, 2, 3, 4)[0]
+1
+```
+
+## Calls
+
+```EBNF
+Call    = Callee [ Params ] [ WS Expression ];
+Callee  = Expression;
+Params  = '(' Expression ')';
+Arg     = Expression;
+```
+
+Calls evaluate the program specified in a *definition*. The *callee* is the definition to be called, which must be a definition value.
+
+Calls may specify *parameters* to be bound to the identifiers specified in the definition. In addition Calls pass an *argument* to the program (if the argument is omitted it defaults to the current argument value).
+
+```
+// Input string is "foobar"
+>>> a(n) => [:n]
+>>> a(3)
+foo
+>>> a(2) "abcd"
+ab
+```
+
+## Conditionals
+
+```EBNF
+Conditional = Expression "if" Expression "else" Expression;
+```
+
+First the middle expression (the condition) is evaluated. If it evaluates to a true value (any non-empty string) then the the left-most expression is evaluated and returned by the conditional. Otherwise if the *condition* evaluated to *false* (and empty string - ""), the right-most value is evaluated instead.
+
+```
+>>> 'a' if 12 < 13 else 'b'
+a
+>>> 1 if '' else 1 + 1
+2
+```
+
+## Recursion
+
+Programs can call themselves:
+
+```
+>>> factorial(n) => 1 if n = 0 else n * fact(n - 1)
+>>> factorial(4)
+24
+```
+
+## Binary Operators
+
+The following are binary operators:
+
+```
++   -   *   /   =   !=  or  and
+<<  **  %   <   >   >=  <=
+```
+
+**Operator**    |   **Usage**
+--------------  |   -------
+\+              |   numeric addition
+\-              |   numeric subtraction
+\*              |   numeric multiplication
+/               |   numeric division
+%               |   numeric remainder
+<<              |   string addition
+**              |   string multiplication
+<               |   smaller than
+<=              |   smaller or equal to 
+>               |   greater than
+>=              |   greater or equal to
+=               |   equal
+!=              |   not equal
+and             |   logical and
+or              |   logical or
+
+The operands of the numeric operators, as well as the right operand of the string multiplication operator, MUST be convertible to a number.
+
+The comparision operators will compare the strings based on lexical order.
+
+NOTE: all binary operations only accept strings as their operands.
+
+## Unary Operators
+
+The following are unary operators:
+
+```
++   -   #   not
+```
+
+**Operator**    |   **Usage**               
+--------------  |   ----------------------  
+not             |   logical not        
+\#              |   definition reference (accepts identifiers)     
+\+              |   numeric unary +  
+\-              |   numeric unary -
+
+The '#' operator is used to pass definitions without calling them.
+
+```
+>>> foo(a) => a ** 2
+>>> bar(f) => f('aa')
+>>> bar(#foo)
+aaaa
+>>> bar(foo)  // foo will be called with no parameters causing an error
+```

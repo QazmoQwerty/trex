@@ -99,6 +99,21 @@ func (this Identifier) interpret(input string) Value {
 	panic(myErr{"undefined identifier \"" + this.id + "\"", this.pos, ERR_INTERPRETER})
 }
 
+func createBoolValue(b bool) StringValue {
+	if b {
+		return StringValue{"1"}
+	}
+	return StringValue{""}
+}
+
+func atoi(str string) int {
+	ret, err := strconv.Atoi(str)
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
 func (this BinaryOperation) interpret(input string) Value {
 	left := this.left.interpret(input)
 
@@ -111,6 +126,18 @@ func (this BinaryOperation) interpret(input string) Value {
 	switch this.op.ty {
 	case TT_STRING_ADD:
 		return StringValue{leftStr + rightStr}
+	case TT_EQUAL:
+		return createBoolValue(leftStr == rightStr)
+	case TT_ADD:
+		return StringValue{strconv.Itoa(atoi(leftStr) + atoi(rightStr))}
+	case TT_SUB:
+		return StringValue{strconv.Itoa(atoi(leftStr) - atoi(rightStr))}
+	case TT_DIV:
+		return StringValue{strconv.Itoa(atoi(leftStr) / atoi(rightStr))}
+	case TT_MUL:
+		return StringValue{strconv.Itoa(atoi(leftStr) * atoi(rightStr))}
+	case TT_MOD:
+		return StringValue{strconv.Itoa(atoi(leftStr) % atoi(rightStr))}
 	default:
 		panic(myErr{"unimplemented binary operator \"" + this.op.str + "\"", this.pos, ERR_INTERPRETER})
 	}

@@ -12,13 +12,19 @@ func main() {
 	const prog = `
 //d=>(as(10))10
 
+fact(n) => 1 if n = 0 else n * fact(n - 1)
+
+fact(4)
+
+// 1 + 'a'
+
 //f(11) 12
 
 // #1 + 2
-a(x, y) => x(10) << y 10
+// a(x, y) => x(10) << y 10
 // 	x << y
 // }
-a(10, 20)
+// a(10, 20)
 // a 10
 // E3 {
     // "" if len < 2 else substr(0, 1) << substr(-2, -1)
