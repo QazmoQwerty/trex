@@ -118,7 +118,6 @@ func startInterpreter(input string) {
 			}
 		}
 	}
-
 }
 
 func recoverer() {
@@ -139,7 +138,8 @@ func runLine(node Node, input Value) {
 	case Definition:
 		break
 	default:
-		println(toString(val, input))
+		println(val.String())
+		// println(toString(val, input))
 	}
 }
 

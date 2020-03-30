@@ -23,6 +23,10 @@ type DefinitionValue struct {
 	def Definition
 }
 
+type PredeclaredDefinitionValue struct {
+	fn func(Value, ListValue, Position) Value
+}
+
 func (this StringValue) String() string {
 	return this.val
 }
@@ -43,12 +47,40 @@ func (this ListValue) String() string {
 	return ret
 }
 
+func (this PredeclaredDefinitionValue) String() string {
+	return "<#Definition>"
+}
+
 func (this NullValue) String() string {
 	return ""
 }
 
 func (this DefinitionValue) String() string {
 	return "<#Definition>"
+}
+
+func assertParamsNum(expected int, list ListValue, pos Position) {
+	if len(list.vals) != expected {
+		panic(myErr{"incorrect parameter count.\n    have: " + strconv.Itoa(len(list.vals)) +
+			"\n    want: " + strconv.Itoa(expected), pos, ERR_INTERPRETER})
+	}
+}
+
+var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
+	"len": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		switch v := input.(type) {
+		case ListValue:
+			return StringValue{strconv.Itoa(len(v.vals))}
+		case StringValue:
+			return StringValue{strconv.Itoa(len(v.val))}
+		case NullValue:
+			return StringValue{"0"}
+		case DefinitionValue:
+			return StringValue{"1"}
+		}
+		return nil
+	},
 }
 
 var definitions = []map[string]Definition{map[string]Definition{}}
@@ -71,7 +103,8 @@ func (this Program) interpret(input Value) Value {
 		case NullValue, *NullValue:
 			break
 		default:
-			ret.val = toString(s, input)
+			// ret.val = toString(s, input)
+			ret.val += s.String()
 
 			if i+1 != len(this.lines) {
 				ret.val += "\n"
@@ -82,17 +115,17 @@ func (this Program) interpret(input Value) Value {
 	return ret
 }
 
-func toString(val Value, input Value) string {
-	switch t := val.(type) {
-	case *NullValue:
-		return ""
-	case DefinitionValue:
-		v := t.def.content.interpret(input)
-		return v.String()
-	default:
-		return val.String()
-	}
-}
+// func toString(val Value, input Value) string {
+// 	switch val.(type) {
+// 	// case *NullValue:
+// 	// 	return ""
+// 	// case DefinitionValue:
+// 	// 	v := t.def.content.interpret(input)
+// 	// 	return v.String()
+// 	default:
+// 		return val.String() // TODO - remove this?
+// 	}
+// }
 
 func (this Definition) interpret(input Value) Value {
 	definitions[len(definitions)-1][this.id.id] = this
@@ -108,7 +141,9 @@ func (this EmptyExpression) interpret(input Value) Value {
 }
 
 func (this Identifier) interpret(input Value) Value {
-
+	if fn, ok := predeclaredFuncs[this.id]; ok {
+		return PredeclaredDefinitionValue{fn}
+	}
 	for i := len(definitions) - 1; i >= 0; i-- {
 		if val, ok := values[i][this.id]; ok {
 			return val
@@ -140,9 +175,11 @@ func (this BinaryOperation) interpret(input Value) Value {
 
 	right := this.right.interpret(input)
 
-	leftStr := toString(left, input)
+	// leftStr := toString(left, input)
+	leftStr := left.String()
 
-	rightStr := toString(right, input)
+	// rightStr := toString(right, input)
+	rightStr := right.String()
 
 	switch this.op.ty {
 	case TT_STRING_ADD:
@@ -217,14 +254,14 @@ func (this BinaryOperation) interpret(input Value) Value {
 }
 
 func (this UnaryOperation) interpret(input Value) Value {
-
 	val := this.expression.interpret(input)
 
 	if this.op.ty == TT_INDIRECTION {
 		return val
 	}
 
-	str := toString(val, input)
+	// str := toString(val, input)
+	str := val.String()
 
 	switch this.op.ty {
 	case TT_NOT:
@@ -279,7 +316,8 @@ func (this Comprehension) interpret(input Value) Value {
 	enterBlock()
 	for _, v := range list {
 		values[len(values)-1][this.fors[0].id.id] = v
-		if this.where == nil || toString(this.where.interpret(input), input) != "" {
+		// if this.where == nil || toString(this.where.interpret(input), input) != "" {
+		if this.where == nil || this.where.interpret(input).String() != "" {
 			ret.vals = append(ret.vals, this.exp.interpret(input))
 		}
 	}
@@ -306,39 +344,36 @@ func (this FunctionCall) interpret(input Value) Value {
 			return def
 		}
 		panic(myErr{"cannot call non-definition value", this.pos, ERR_INTERPRETER})
-	case DefinitionValue:
-		enterBlock()
-
-		if len(this.params.expressions) != len(def.def.params.identifiers) {
-			panic(myErr{"incorrect parameter count\ncount is: " + strconv.Itoa(len(this.params.expressions)) +
-				"\nshould be: " + strconv.Itoa(len(def.def.params.identifiers)), this.pos, ERR_INTERPRETER})
+	case PredeclaredDefinitionValue:
+		params := ListValue{}
+		for _, exp := range this.params.expressions {
+			params.vals = append(params.vals, exp.interpret(input))
 		}
-
-		for i := 0; i < len(this.params.expressions); i++ {
-			val := this.params.expressions[i].interpret(input)
-
-			// str := toString(val, input)
-
-			id := Identifier{def.def.params.identifiers[i].id, def.def.pos}
-			// prog := Program{[]Node{Literal{str, def.def.pos}}, def.def.pos}
-			// param := Definition{id, IdentifierList{}, prog, def.def.pos}
-			// definitions[len(definitions)-1][id.id] = param
-			values[len(values)-1][id.id] = val
-		}
-
 		var inputVal Value
-
 		if this.arg == nil {
 			inputVal = input
 		} else {
 			inputVal = this.arg.interpret(input)
-
-			// inputStr = toString(exp, input)
-
 		}
-
+		return def.fn(inputVal, params, this.pos)
+	case DefinitionValue:
+		enterBlock()
+		if len(this.params.expressions) != len(def.def.params.identifiers) {
+			panic(myErr{"incorrect parameter count\n    have: " + strconv.Itoa(len(this.params.expressions)) +
+				"\n    want: " + strconv.Itoa(len(def.def.params.identifiers)), this.pos, ERR_INTERPRETER})
+		}
+		for i := 0; i < len(this.params.expressions); i++ {
+			val := this.params.expressions[i].interpret(input)
+			id := Identifier{def.def.params.identifiers[i].id, def.def.pos}
+			values[len(values)-1][id.id] = val
+		}
+		var inputVal Value
+		if this.arg == nil {
+			inputVal = input
+		} else {
+			inputVal = this.arg.interpret(input)
+		}
 		ret := def.def.content.interpret(inputVal)
-
 		exitBlock()
 		return ret
 	}
@@ -358,15 +393,18 @@ func (this Subscript) interpret(input Value) Value {
 	vals := valToList(val, input)
 
 	if this.idx2 == nil && this.idx3 == nil {
-		idx := atoi(toString(this.idx1.interpret(input), input))
+		// idx := atoi(toString(this.idx1.interpret(input), input))
+		idx := atoi(this.idx1.interpret(input).String())
 		if idx < 0 {
 			idx += len(vals)
 		}
 		return vals[idx]
 	}
 	if this.idx3 == nil {
-		lowStr := toString(this.idx1.interpret(input), input)
-		highStr := toString(this.idx2.interpret(input), input)
+		// lowStr := toString(this.idx1.interpret(input), input)
+		// highStr := toString(this.idx2.interpret(input), input)
+		lowStr := this.idx1.interpret(input).String()
+		highStr := this.idx2.interpret(input).String()
 		low, high := 0, len(vals)
 		if lowStr != "" {
 			low = atoi(lowStr)
