@@ -13,9 +13,13 @@ func readLine(prompt string) string {
 	if err != nil {
 		panic(err)
 	}
-	line += "\n"
 	insertLine(line)
-	return line
+	return line + "\n"
+}
+
+func showHelp() {
+	println("Help still needs to be written")
+	println("For now see the Language Specification: gitlab.com/QazmoQwerty/trex/-/blob/master/docs/trex-spec.md")
 }
 
 func lexLine(tokens chan Token, isFirstLine bool) {
@@ -40,8 +44,12 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 		prompt = "... "
 	}
 	line := readLine(prompt)
-	if line == "exit\n" {
+	if line == "exit\n" || line == "quit\n" {
 		exitProgram()
+		return
+	} else if line == "help\n" {
+		showHelp()
+		tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
 		return
 	}
 	switch line[len(line)-2] {

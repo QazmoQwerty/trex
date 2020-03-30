@@ -113,9 +113,11 @@ Program     = ProgramLine { Terminator ProgramLine };
 ProgramLine = Statement | Expression;
 ```
 
-A program consists of *definitions* and *expressions*. Each program gets an input string (called the *argument*) and outputs a *Value*.  
+A program consists of *definitions* and *expressions*. Each program gets an input value (called the *argument*) and outputs a *Value*.  
 
-Entering a top-level expression will cause the program to output it's value. Entering another top-level expression will cause the program to output a newline + the expression (note: if the value is not a string it will be converted into one).
+Entering a top-level expression will cause the program to output it's value. Entering another top-level expression will cause the program to output a newline + the expression.
+
+Only a program which outputs only one value may output a non-string value.
 
 ```
 >>> a => 10 + 20
@@ -161,7 +163,7 @@ A subscript can get 0-3 indices, which must all evaluate to a string which is co
 
 **0 indices**
 
-Does nothing. This is used to express the value of the argument string.
+Does nothing. This is used to express the value of the argument.
 
 ```
 >>> foo => []

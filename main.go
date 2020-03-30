@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"reflect"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/fatih/color"
 )
 
-const version = "0.1"
+const version = "0.1.1"
 const gitlabLink = "gitlab.com/QazmoQwerty/trex"
 
 var globals struct {
@@ -24,19 +25,32 @@ func exitProgram() {
 }
 
 func main() {
-	fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
-	fmt.Printf("Type \"help\" for help, \"exit\" to exit.\n")
-
 	globals.liner = liner.NewLiner()
 	defer globals.liner.Close()
 	args := os.Args[1:]
 
 	input := ""
 	fileNames := []string{}
+	redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
 
 	for _, arg := range args {
-		if arg[0] == '-' { // Special arguments
-			// TODO - what arguments do we need?
+		if arg[0] == '-' {
+			switch arg {
+			case "-h":
+				println("Usage: trex <input> <files> [flags]")
+				println("    ")
+				println("    input: Either a file text inside \"quotes\"")
+				println("    files: Files to be run. If no files are specified trex will run in interpreter mode.")
+				println("    flags: ")
+				println("        -h (show this message)")
+				exitProgram()
+			default:
+				redBold("Error: ")
+				println("Unknown flag \"" + arg + "\".")
+				println("Usage: trex <input> <files> [arguments]")
+				println("Try \"trex -h\" for more information.")
+				exitProgram()
+			}
 		} else {
 			if input != "" {
 				fileNames = append(fileNames, arg)
@@ -47,85 +61,33 @@ func main() {
 	}
 
 	if input == "" {
-		input = "abcd"
-		// println("ERROR: missing input string")
-		// return
+		redBold("Error: ")
+		println("missing input string")
+		println("Try \"trex -h\" for more information.")
+		exitProgram()
+		return
+	}
+
+	if input[0] == '"' && input[len(input)-1] == '"' {
+		input = input[1 : len(input)-1]
+	} else {
+		content, err := ioutil.ReadFile(input)
+		if err != nil {
+			redBold("Error: ")
+			println("could not open file \"" + input + "\"")
+			exitProgram()
+		}
+		input = string(content)
 	}
 
 	if len(fileNames) == 0 {
 		startInterpreter(input)
 	}
-
-	// const input = "abcd"
-
-	// 	const prog = `
-
-	// // a => []
-	// // b(n) => n << []
-	// // a b(10)
-
-	// sum(a, b) => a + b
-	// len => 1 + len [1:] if [] else 0
-	// count => len
-	// fold(f) => () if len = 0 else f([0], fold(#f) [1:])
-	// numOccurs(n) => 0 if not [] else (1 if [0] = n else 0) + numOccurs(n) [1:]
-	// toBool => "true" if [] else "false"
-
-	// "numOccurs:"
-	// numOccurs(4) (4, 2, 4, 4, 6)
-	// "fold by sum:"
-	// fold(#sum) (1, 2, 3, 4)
-
-	// isPrime(n) => count (i for i in 2..n where n % i = 0) = 0
-
-	// primes(n) => i for i in 0..n where isPrime(i)
-
-	// "toBool:"
-	// toBool isPrime(13)
-
-	// "primes:"
-	// primes(100)
-
-	// merge(a, b) => (a, b) if len a = 1 and len b = 1 else a + b
-
-	// stringAdd(a, b) => a << b
-	// collapse => fold(#stringAdd)
-
-	// has(n) => count (i for i in [] where i = n) != 0
-
-	// unique => () if len = 0 else merge(([-1] if numOccurs([-1]) = 1 else ()), (unique [:-1]))
-
-	// collapse (1, 2, 3, 4, 5)
-
-	// foo => 12344321
-
-	// "foo:"
-	// foo
-
-	// "unique:"
-	// unique foo
-
-	// "collapse unique:"
-	// collapse unique foo
-
-	// `
-
-	// 	tokens := make(chan Token)
-	// 	go lexProgram(prog, tokens)
-	// 	// for {
-	// 	// 	showToken(<-tokens)
-	// 	// }
-	// 	tokMan := createTokenChanManager(tokens)
-	// 	ast := parseProgram(&tokMan, TT_EOF)
-	// 	println(printAst(ast).Print())
-	// 	if !isNil(ast) {
-	// 		for _, n := range ast.lines {
-	// 			runLine(n, StringValue{input})
-	// 		}
-	// 	}
 }
 
 func startInterpreter(input string) {
+	fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
+	fmt.Printf("Type \"help\" for help, \"exit\" to exit.\n")
 	tokens := make(chan Token)
 	for true {
 		go lexLine(tokens, true)
@@ -168,8 +130,12 @@ func printError(err error) {
 	case myErr:
 		whiteBold := color.New(color.FgWhite).Add(color.Bold).PrintfFunc()
 		redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
-		whiteBold("At line %d\n", e.pos.line)
-		print("    " + allUserInput[e.pos.line-1] + "    ")
+		if e.pos.line == lineCount-1 {
+			print("    ")
+		} else {
+			whiteBold("At line %d\n", e.pos.line)
+			print("    " + allUserInput[e.pos.line-1] + "\n    ")
+		}
 		for i := 0; i < e.pos.start; i++ {
 			if allUserInput[e.pos.line-1][i] == '\t' {
 				print("\t")

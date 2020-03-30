@@ -132,18 +132,6 @@ func (this Program) interpret(input Value) Value {
 	return ret
 }
 
-// func toString(val Value, input Value) string {
-// 	switch val.(type) {
-// 	// case *NullValue:
-// 	// 	return ""
-// 	// case DefinitionValue:
-// 	// 	v := t.def.content.interpret(input)
-// 	// 	return v.String()
-// 	default:
-// 		return val.String() // TODO - remove this?
-// 	}
-// }
-
 func (this Definition) interpret(input Value) Value {
 	definitions[len(definitions)-1][this.id.id] = this
 	return NullValue{}
