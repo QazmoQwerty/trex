@@ -1,10 +1,5 @@
 package main
 
-import (
-	"bufio"
-	"os"
-)
-
 var allUserInput = []string{}
 var lastLine = ""
 
@@ -13,18 +8,20 @@ func insertLine(line string) {
 	lastLine = line
 }
 
-func readLine() string {
-	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+func readLine(prompt string) string {
+	line, err := globals.liner.Prompt(prompt)
 	if err != nil {
 		panic(err)
 	}
+	line += "\n"
 	insertLine(line)
 	return line
 }
 
 func lexLine(tokens chan Token, isFirstLine bool) {
+	prompt := ">>> "
 	if isFirstLine {
-		print(">>> ")
+
 		defer func() {
 			if err := recover(); err != nil {
 				switch e := err.(type) {
@@ -40,11 +37,11 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 			}
 		}()
 	} else {
-		print("... ")
+		prompt = "... "
 	}
-	line := readLine()
+	line := readLine(prompt)
 	if line == "exit\n" {
-		os.Exit(0)
+		exitProgram()
 		return
 	}
 	switch line[len(line)-2] {
@@ -54,8 +51,7 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 	case '{':
 		lex(line, tokens)
 		for {
-			print("... ")
-			line := readLine()
+			line := readLine("... ")
 			lex(line, tokens)
 			if line == "}\n" {
 				break

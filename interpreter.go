@@ -2,6 +2,7 @@ package main
 
 import (
 	"strconv"
+	"strings"
 )
 
 type Value interface {
@@ -80,6 +81,22 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 			return StringValue{"1"}
 		}
 		return nil
+	},
+	"split": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		ret := ListValue{}
+		for _, i := range strings.Split(input.String(), params.vals[0].String()) {
+			ret.vals = append(ret.vals, StringValue{i})
+		}
+		return ret
+	},
+	"lines": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		ret := ListValue{}
+		for _, i := range strings.Split(input.String(), "\n") {
+			ret.vals = append(ret.vals, StringValue{i})
+		}
+		return ret
 	},
 }
 

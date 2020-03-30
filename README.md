@@ -25,5 +25,5 @@ countChars => (ch, count(ch)) for ch in chars.unique
 ```
 // primes(n) returns all prime numbers from 0 to n
 isPrime(n) => count (i for i in 2..n where n % i = 0) = 0
-primes(n) => i for i in 0..100 where isPrime(n)
+primes(n) => i for i in 0..n where isPrime(i)
 ```

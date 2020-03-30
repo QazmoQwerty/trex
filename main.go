@@ -1,14 +1,34 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"reflect"
+
+	"github.com/peterh/liner"
 
 	"github.com/disiqueira/gotree"
 	"github.com/fatih/color"
 )
 
+const version = "0.1"
+const gitlabLink = "gitlab.com/QazmoQwerty/trex"
+
+var globals struct {
+	liner *liner.State
+}
+
+func exitProgram() {
+	globals.liner.Close()
+	os.Exit(0)
+}
+
 func main() {
+	fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
+	fmt.Printf("Type \"help\" for help, \"exit\" to exit.\n")
+
+	globals.liner = liner.NewLiner()
+	defer globals.liner.Close()
 	args := os.Args[1:]
 
 	input := ""
