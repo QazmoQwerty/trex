@@ -6,8 +6,8 @@ type myErr struct {
 	ty  ErrorType
 }
 
-func (this myErr) Error() string {
-	return this.msg
+func (err myErr) Error() string {
+	return err.msg
 }
 
 type ErrorType int

@@ -37,7 +37,7 @@ The character ‘|’ is used as a terminator (similar to ‘;’ in other langu
 
 ### Newlines
 
-A newline is converted into a terminator is the token before it is one of the following:
+A newline is converted into a terminator is either the current token is inside parenthesis *or* the token before it is one of the following:
 
 * an *identifier*
 * a *literal*

@@ -1,13 +1,84 @@
 package main
 
+import (
+	"bufio"
+	"os"
+)
+
+var allUserInput = []string{}
+var lastLine = ""
+
+func insertLine(line string) {
+	allUserInput = append(allUserInput, line)
+	lastLine = line
+}
+
+func readLine() string {
+	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+	insertLine(line)
+	return line
+}
+
+func lexLine(tokens chan Token, isFirstLine bool) {
+	if isFirstLine {
+		print(">>> ")
+		defer func() {
+			if err := recover(); err != nil {
+				switch e := err.(type) {
+				case error:
+					printError(e)
+				default:
+					panic(err)
+				}
+				for len(tokens) > 0 {
+					<-tokens
+				}
+				tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+			}
+		}()
+	} else {
+		print("... ")
+	}
+	line := readLine()
+	if line == "exit\n" {
+		os.Exit(0)
+		return
+	}
+	switch line[len(line)-2] {
+	case '\\':
+		lex(line[:len(line)-2], tokens)
+		lexLine(tokens, false)
+	case '{':
+		lex(line, tokens)
+		for {
+			print("... ")
+			line := readLine()
+			lex(line, tokens)
+			if line == "}\n" {
+				break
+			}
+		}
+	default:
+		lex(line, tokens)
+	}
+	if isFirstLine {
+		tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+	}
+}
+
 func lexProgram(str string, tokens chan Token) {
 	lex(str, tokens)
 	tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
 }
 
+var lineCount = 1
+
 func lex(str string, tokens chan Token) {
 	runes := []rune(str)
-	line := 0
+	// line := 1
 	pos := 0
 	idx := 0
 	var beforeLast Token
@@ -16,7 +87,8 @@ func lex(str string, tokens chan Token) {
 	last.ty = TT_UNKNOWN
 	for idx < len(runes) {
 		outputToken := true
-		tok := Token{CT_ILLEGAL, string(runes[idx]), Position{line, pos, pos + 1}}
+		// tok := Token{CT_ILLEGAL, string(runes[idx]), Position{line, pos, pos + 1}}
+		tok := Token{CT_ILLEGAL, string(runes[idx]), Position{lineCount, pos, pos + 1}}
 		curr := runes[idx]
 		idx++
 		pos++
@@ -27,7 +99,8 @@ func lex(str string, tokens chan Token) {
 				outputToken = false
 			}
 		case CT_NEWLINE:
-			line++
+			// line++
+			lineCount++
 			pos = 0
 			tok.ty = TT_TERMINATOR
 			lastTy := last.ty
@@ -93,7 +166,8 @@ func lex(str string, tokens chan Token) {
 							break
 						}
 					} else if runes[idx] == '\n' {
-						line++
+						// line++
+						lineCount++
 						pos = 0
 					}
 					tok.data += string(runes[idx])
@@ -111,7 +185,8 @@ func lex(str string, tokens chan Token) {
 			case TT_MULTI_LINE_COMMENT_OPEN:
 				for idx+1 < len(runes) && !(runes[idx] == '*' && runes[idx+1] == '/') {
 					if runes[idx] == '\n' {
-						line++
+						// line++
+						lineCount++
 						pos = 0
 					} else {
 						pos++

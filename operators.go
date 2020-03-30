@@ -64,6 +64,8 @@ func getOperator(str string) Operator {
 		return Operator{TT_MUL, str, LEFT_TO_RIGHT, 100, true}
 	case "**":
 		return Operator{TT_STRING_MUL, str, LEFT_TO_RIGHT, 100, true}
+	case "..":
+		return Operator{TT_RANGE, str, LEFT_TO_RIGHT, 95, true}
 	case "+":
 		return Operator{TT_ADD, str, LEFT_TO_RIGHT, 90, true}
 	case "-":
@@ -109,7 +111,7 @@ func getOperator(str string) Operator {
 	case "else":
 		return Operator{TT_ELSE, str, false, 0, false}
 	case "for":
-		return Operator{TT_FOR, str, false, 0, false}
+		return Operator{TT_FOR, str, false, 45, false}
 	case "in":
 		return Operator{TT_IN, str, false, 0, false}
 	case "where":
@@ -145,6 +147,8 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_MUL, "*", LEFT_TO_RIGHT, 100, true}
 	case TT_STRING_MUL:
 		return Operator{TT_STRING_MUL, "**", LEFT_TO_RIGHT, 100, true}
+	case TT_RANGE:
+		return Operator{TT_RANGE, "..", LEFT_TO_RIGHT, 95, true}
 	case TT_ADD:
 		return Operator{TT_ADD, "+", LEFT_TO_RIGHT, 90, true}
 	case TT_SUB:
@@ -190,7 +194,7 @@ func getOperatorByType(op TokenType) Operator {
 	case TT_ELSE:
 		return Operator{TT_ELSE, "else", false, 0, false}
 	case TT_FOR:
-		return Operator{TT_FOR, "for", false, 0, false}
+		return Operator{TT_FOR, "for", false, 45, false}
 	case TT_IN:
 		return Operator{TT_IN, "in", false, 0, false}
 	case TT_WHERE:
@@ -251,6 +255,7 @@ const (
 	TT_COMMA
 	TT_ADD
 	TT_SUB
+	TT_RANGE
 	TT_MUL
 	TT_DIV
 	TT_STRING_ADD

@@ -16,12 +16,12 @@ longestWord => max(#len) words
 
 ```
 // countChars "aabdbg" = (a, 2), (b, 2), (d, 1), (g, 1) 
-countChars => (ch, count(ch)) for ch in unique chars
+countChars => (ch, count(ch)) for ch in chars.unique
 ```
 
 
 ```
 // primes(n) returns all prime numbers from 0 to n
-isPrime(n) => count (i for i in range(2, n) where n % i = 0) = 0
-primes(n) => i for i in range(100) where isPrime(n)
+isPrime(n) => count (i for i in 2..n where n % i = 0) = 0
+primes(n) => i for i in 0..100 where isPrime(n)
 ```

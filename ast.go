@@ -4,7 +4,7 @@ type Node interface {
 	getPosition() Position
 	toString() string
 	getChildren() []Node
-	interpret(input string) Value
+	interpret(input Value) Value
 }
 
 type Statement interface {
@@ -22,16 +22,31 @@ type BinaryOperation struct {
 	pos   Position
 }
 
-func (this BinaryOperation) getPosition() Position {
-	return this.pos
+func (node BinaryOperation) getPosition() Position {
+	return node.pos
 }
 
-func (this BinaryOperation) toString() string {
-	return this.op.str
+func (node BinaryOperation) toString() string {
+	return node.op.str
 }
 
-func (this BinaryOperation) getChildren() []Node {
-	return []Node{this.left, this.right}
+func (node BinaryOperation) getChildren() []Node {
+	return []Node{node.left, node.right}
+}
+
+type EmptyExpression struct {
+	pos Position
+}
+
+func (node EmptyExpression) getPosition() Position {
+	return node.pos
+}
+func (node EmptyExpression) toString() string {
+	return "()"
+}
+
+func (node EmptyExpression) getChildren() []Node {
+	return []Node{}
 }
 
 type UnaryOperation struct {
@@ -40,15 +55,15 @@ type UnaryOperation struct {
 	pos        Position
 }
 
-func (this UnaryOperation) getPosition() Position {
-	return this.pos
+func (node UnaryOperation) getPosition() Position {
+	return node.pos
 }
-func (this UnaryOperation) toString() string {
-	return this.op.str
+func (node UnaryOperation) toString() string {
+	return node.op.str
 }
 
-func (this UnaryOperation) getChildren() []Node {
-	return []Node{this.expression}
+func (node UnaryOperation) getChildren() []Node {
+	return []Node{node.expression}
 }
 
 type Conditional struct {
@@ -58,35 +73,46 @@ type Conditional struct {
 	pos        Position
 }
 
-func (this Conditional) getPosition() Position {
-	return this.pos
+func (node Conditional) getPosition() Position {
+	return node.pos
 }
 
-func (this Conditional) toString() string {
+func (node Conditional) toString() string {
 	return "<if>"
 }
 
-func (this Conditional) getChildren() []Node {
-	return []Node{this.condition, this.thenBranch, this.elseBranch}
+func (node Conditional) getChildren() []Node {
+	return []Node{node.condition, node.thenBranch, node.elseBranch}
 }
 
-type ForEach struct {
+type Comprehension struct {
+	exp   Expression
+	fors  []ForClause
+	where Expression
+	pos   Position
+}
+
+type ForClause struct {
+	id  Identifier
 	exp Expression
-	ids IdentifierList
-	in  Expression
-	pos Position
 }
 
-func (this ForEach) getPosition() Position {
-	return this.pos
+func (node Comprehension) getPosition() Position {
+	return node.pos
 }
 
-func (this ForEach) toString() string {
+func (node Comprehension) toString() string {
 	return "<for>"
 }
 
-func (this ForEach) getChildren() []Node {
-	return []Node{this.exp, this.ids, this.in}
+func (node Comprehension) getChildren() []Node {
+	ret := []Node{node.exp}
+	for _, i := range node.fors {
+		ret = append(ret, i.id)
+		ret = append(ret, i.exp)
+	}
+	ret = append(ret, node.where)
+	return ret
 }
 
 type Identifier struct {
@@ -94,15 +120,15 @@ type Identifier struct {
 	pos Position
 }
 
-func (this Identifier) getPosition() Position {
-	return this.pos
+func (node Identifier) getPosition() Position {
+	return node.pos
 }
 
-func (this Identifier) toString() string {
-	return this.id
+func (node Identifier) toString() string {
+	return node.id
 }
 
-func (this Identifier) getChildren() []Node {
+func (node Identifier) getChildren() []Node {
 	return nil
 }
 
@@ -111,18 +137,18 @@ type ExpressionList struct {
 	pos         Position
 }
 
-func (this ExpressionList) getPosition() Position {
-	return this.pos
+func (node ExpressionList) getPosition() Position {
+	return node.pos
 }
 
-func (this ExpressionList) toString() string {
+func (node ExpressionList) toString() string {
 	return "<expList>"
 }
 
-func (this ExpressionList) getChildren() []Node {
-	arr := make([]Node, len(this.expressions))
+func (node ExpressionList) getChildren() []Node {
+	arr := make([]Node, len(node.expressions))
 	for i := 0; i < len(arr); i++ {
-		arr[i] = this.expressions[i]
+		arr[i] = node.expressions[i]
 	}
 	return arr
 }
@@ -134,16 +160,16 @@ type FunctionCall struct {
 	pos    Position
 }
 
-func (this FunctionCall) getPosition() Position {
-	return this.pos
+func (node FunctionCall) getPosition() Position {
+	return node.pos
 }
 
-func (this FunctionCall) toString() string {
+func (node FunctionCall) toString() string {
 	return "<call>"
 }
 
-func (this FunctionCall) getChildren() []Node {
-	return []Node{this.callee, this.params, this.arg}
+func (node FunctionCall) getChildren() []Node {
+	return []Node{node.callee, node.params, node.arg}
 }
 
 type Literal struct {
@@ -151,15 +177,15 @@ type Literal struct {
 	pos   Position
 }
 
-func (this Literal) getPosition() Position {
-	return this.pos
+func (node Literal) getPosition() Position {
+	return node.pos
 }
 
-func (this Literal) toString() string {
-	return "\"" + this.value + "\""
+func (node Literal) toString() string {
+	return "\"" + node.value + "\""
 }
 
-func (this Literal) getChildren() []Node {
+func (node Literal) getChildren() []Node {
 	return nil
 }
 
@@ -171,22 +197,22 @@ type Subscript struct {
 	pos        Position
 }
 
-func (this Subscript) getPosition() Position {
-	return this.pos
+func (node Subscript) getPosition() Position {
+	return node.pos
 }
 
-func (this Subscript) toString() string {
-	return "<[]>"
+func (node Subscript) toString() string {
+	return "[]"
 }
 
-func (this Subscript) getChildren() []Node {
+func (node Subscript) getChildren() []Node {
 	switch {
-	case this.idx2 == nil:
-		return []Node{this.expression, this.idx1}
-	case this.idx3 == nil:
-		return []Node{this.expression, this.idx1, this.idx2}
+	case node.idx2 == nil:
+		return []Node{node.expression, node.idx1}
+	case node.idx3 == nil:
+		return []Node{node.expression, node.idx1, node.idx2}
 	default:
-		return []Node{this.expression, this.idx1, this.idx2, this.idx3}
+		return []Node{node.expression, node.idx1, node.idx2, node.idx3}
 	}
 
 }
@@ -196,18 +222,18 @@ type IdentifierList struct {
 	pos         Position
 }
 
-func (this IdentifierList) getPosition() Position {
-	return this.pos
+func (node IdentifierList) getPosition() Position {
+	return node.pos
 }
 
-func (this IdentifierList) toString() string {
+func (node IdentifierList) toString() string {
 	return "<idList>"
 }
 
-func (this IdentifierList) getChildren() []Node {
-	arr := make([]Node, len(this.identifiers))
+func (node IdentifierList) getChildren() []Node {
+	arr := make([]Node, len(node.identifiers))
 	for i := 0; i < len(arr); i++ {
-		arr[i] = this.identifiers[i]
+		arr[i] = node.identifiers[i]
 	}
 	return arr
 }
@@ -219,25 +245,25 @@ type Definition struct {
 	pos     Position
 }
 
-func (this Definition) getPosition() Position {
-	return this.pos
+func (node Definition) getPosition() Position {
+	return node.pos
 }
 
-func (this Definition) toString() string {
-	return this.id.id + "=>"
+func (node Definition) toString() string {
+	return node.id.id + "=>"
 }
 
-func (this Definition) getChildren() []Node {
-	var content Node = this.content
-	if len(this.content.lines) == 1 {
-		content = this.content.lines[0]
+func (node Definition) getChildren() []Node {
+	var content Node = node.content
+	if len(node.content.lines) == 1 {
+		content = node.content.lines[0]
 	}
-	if len(this.params.identifiers) == 0 {
+	if len(node.params.identifiers) == 0 {
 		return []Node{content}
-	} else if len(this.params.identifiers) == 1 {
-		return []Node{this.params.identifiers[0], content}
+	} else if len(node.params.identifiers) == 1 {
+		return []Node{node.params.identifiers[0], content}
 	}
-	return []Node{this.params, content}
+	return []Node{node.params, content}
 }
 
 type Program struct {
@@ -245,14 +271,14 @@ type Program struct {
 	pos   Position
 }
 
-func (this Program) getPosition() Position {
-	return this.pos
+func (node Program) getPosition() Position {
+	return node.pos
 }
 
-func (this Program) toString() string {
+func (node Program) toString() string {
 	return "{}"
 }
 
-func (this Program) getChildren() []Node {
-	return this.lines
+func (node Program) getChildren() []Node {
+	return node.lines
 }

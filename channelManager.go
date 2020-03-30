@@ -10,28 +10,28 @@ func createTokenChanManager(tokens chan Token) TokenChanManager {
 	return TokenChanManager{Token{}, <-tokens, tokens}
 }
 
-func (this *TokenChanManager) insertAtFront(token Token) {
-	this.inserted = token
+func (manager *TokenChanManager) insertAtFront(token Token) {
+	manager.inserted = token
 }
 
-func (this *TokenChanManager) next() Token {
-	if this.inserted.ty != TT_UNKNOWN {
-		ret := this.inserted
-		this.inserted = Token{}
+func (manager *TokenChanManager) next() Token {
+	if manager.inserted.ty != TT_UNKNOWN {
+		ret := manager.inserted
+		manager.inserted = Token{}
 		return ret
 	}
-	ret := this.curr
-	if this.curr.ty != TT_EOF {
-		this.curr = <-this.tokens
+	ret := manager.curr
+	if manager.curr.ty != TT_EOF {
+		manager.curr = <-manager.tokens
 	}
 	return ret
 }
 
-func (this *TokenChanManager) peek() Token {
-	if this.inserted.ty != TT_UNKNOWN {
-		return this.inserted
+func (manager *TokenChanManager) peek() Token {
+	if manager.inserted.ty != TT_UNKNOWN {
+		return manager.inserted
 	}
-	return this.curr
+	return manager.curr
 }
 
 // type TokenChanManager struct {
@@ -46,14 +46,14 @@ func (this *TokenChanManager) peek() Token {
 // 	return TokenChanManager{curr, next, tokens}
 // }
 
-// func (this TokenChanManager) nextToken() Token {
-// 	this.curr = this.next
-// 	if this.curr.ty != TT_EOF {
-// 		this.next = <-this.tokens
+// func (manager TokenChanManager) nextToken() Token {
+// 	manager.curr = manager.next
+// 	if manager.curr.ty != TT_EOF {
+// 		manager.next = <-manager.tokens
 // 	}
-// 	return this.curr
+// 	return manager.curr
 // }
 
-// func (this TokenChanManager) peekToken() Token {
-// 	return this.curr
+// func (manager TokenChanManager) peekToken() Token {
+// 	return manager.curr
 // }
