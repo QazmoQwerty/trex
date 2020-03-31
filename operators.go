@@ -121,6 +121,12 @@ func getOperator(str string) Operator {
 	}
 }
 
+func getWordOperators() []string {
+	return []string{
+		"else", "for", "in", "where", "and", "if", "or", "not", "exit", "help", "quit",
+	}
+}
+
 func getOperatorByType(op TokenType) Operator {
 	switch op {
 	case TT_PARENTHESIS_OPEN:

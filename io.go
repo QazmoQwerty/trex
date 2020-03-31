@@ -2,6 +2,8 @@ package main
 
 import (
 	"os"
+	"strings"
+	"unicode"
 
 	"github.com/disiqueira/gotree"
 	"github.com/fatih/color"
@@ -13,6 +15,55 @@ var lastLine = ""
 
 func ioSetup() {
 	globals.liner = liner.NewLiner()
+	globals.liner.SetWordCompleter(wordCompleter)
+}
+
+func wordCompleter(line string, pos int) (string, []string, string) {
+	if len(line) == 0 {
+		return "", []string{"help", "exit", ""}, ""
+	}
+
+	low := pos - 1
+	if low < 0 || low > len([]rune(line)) || !unicode.IsLetter([]rune(line)[low]) {
+		return line[:pos], []string{}, line[pos:]
+	}
+	for low > 0 && unicode.IsLetter([]rune(line)[low]) {
+		low--
+	}
+	high := pos - 1
+	for high < len([]rune(line)) && unicode.IsLetter([]rune(line)[high]) {
+		high++
+	}
+	word := line[low:high]
+	completions := []string{}
+
+	for k := range predeclaredFuncs {
+		if strings.HasPrefix(k, word) {
+			completions = append(completions, k)
+		}
+	}
+	for i := len(definitions) - 1; i > 0; i-- {
+		for k := range definitions[i] {
+			if strings.HasPrefix(k, word) {
+				completions = append(completions, k)
+			}
+		}
+	}
+	for i := len(values) - 1; i > 0; i-- {
+		for k := range values[i] {
+			if strings.HasPrefix(k, word) {
+				completions = append(completions, k)
+			}
+		}
+	}
+	for _, s := range getWordOperators() {
+		if strings.HasPrefix(s, word) {
+			completions = append(completions, s)
+		}
+	}
+	completions = append(completions, word)
+
+	return line[:low], completions, line[high:]
 }
 
 func ioExit() {

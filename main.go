@@ -10,7 +10,7 @@ import (
 	"github.com/peterh/liner"
 )
 
-const version = "0.1.1"
+const version = "0.2"
 const gitlabLink = "gitlab.com/QazmoQwerty/trex"
 
 var globals struct {
