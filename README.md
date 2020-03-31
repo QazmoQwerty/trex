@@ -18,7 +18,7 @@ longestWord => max(#len) words
 
 ```
 // countChars "aabdbg" = (a, 2), (b, 2), (d, 1), (g, 1) 
-countChars => (ch, count(ch)) for ch in chars.unique
+countChars => (ch, count(ch)) for ch in unique chars
 ```
 
 

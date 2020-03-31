@@ -118,6 +118,106 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		}
 		return ret
 	},
+	"chars": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		str := input.String()
+		ret := ListValue{make([]Value, len(str))}
+		for i, c := range str {
+			ret.vals[i] = StringValue{string(c)}
+		}
+		return ret
+	},
+	"min": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		list := input.(ListValue)
+		var min Value
+		var minVal int
+		for _, i := range list.vals {
+			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String())
+			if min == nil || currVal < minVal {
+				min = i
+				minVal = currVal
+			}
+		}
+		return min
+	},
+	"max": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		list := input.(ListValue)
+		var max Value
+		var maxVal int
+		for _, i := range list.vals {
+			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String())
+			if max == nil || currVal > maxVal {
+				max = i
+				maxVal = currVal
+			}
+		}
+		return max
+	},
+	"unique": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		list := input.(ListValue)
+		ret := ListValue{}
+		for _, i := range list.vals {
+			b := true
+			for _, j := range ret.vals {
+				if j.String() == i.String() {
+					b = false
+					break
+				}
+			}
+			if b {
+				ret.vals = append(ret.vals, i)
+			}
+		}
+		return ret
+	},
+	"numOccurs": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		count := 0
+		switch v := input.(type) {
+		case ListValue:
+			for _, i := range v.vals {
+				if i.String() == params.vals[0].String() {
+					count++
+				}
+			}
+		case StringValue:
+			count = strings.Count(v.val, params.vals[0].String())
+		}
+		return StringValue{strconv.Itoa(count)}
+	},
+	"toUpper": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return StringValue{strings.ToUpper(input.String())}
+	},
+	"toLower": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return StringValue{strings.ToLower(input.String())}
+	},
+}
+
+func callDefinition(callee Value, input Value, params ListValue, pos Position) Value {
+	switch def := callee.(type) {
+	case PredeclaredDefinitionValue:
+		return def.fn(input, params, pos)
+	case DefinitionValue:
+		enterBlock()
+		if len(params.vals) != len(def.def.params.identifiers) {
+			panic(myErr{"incorrect parameter count\n    have: " + strconv.Itoa(len(params.vals)) +
+				"\n    want: " + strconv.Itoa(len(def.def.params.identifiers)), pos, ERR_INTERPRETER})
+		}
+		for i := 0; i < len(params.vals); i++ {
+			id := Identifier{def.def.params.identifiers[i].id, def.def.pos}
+			values[len(values)-1][id.id] = params.vals[i]
+		}
+		ret := def.def.content.interpret(input)
+		exitBlock()
+		return ret
+	default:
+		panic(myErr{"cannot call non-definition value", pos, ERR_INTERPRETER})
+	}
 }
 
 var definitions = []map[string]Definition{map[string]Definition{}}

@@ -44,6 +44,10 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 		prompt = "... "
 	}
 	line := readLine(prompt)
+	if line == "\n" {
+		tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+		return
+	}
 	if line == "exit\n" || line == "quit\n" {
 		exitProgram()
 		return
