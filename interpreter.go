@@ -200,15 +200,15 @@ func (this BinaryOperation) interpret(input Value) Value {
 
 	right := this.right.interpret(input)
 
-	// leftStr := toString(left, input)
 	leftStr := left.String()
 
-	// rightStr := toString(right, input)
 	rightStr := right.String()
 
 	switch this.op.ty {
 	case TT_STRING_ADD:
 		return StringValue{leftStr + rightStr}
+	case TT_STRING_MUL:
+		return StringValue{strings.Repeat(leftStr, atoi(rightStr))}
 	case TT_EQUAL:
 		return createBoolValue(leftStr == rightStr)
 	case TT_NOT_EQUAL:

@@ -68,10 +68,6 @@ func main() {
 		return
 	}
 
-	for _, arg := range args {
-		println(arg)
-	}
-
 	if input[0] == '[' && input[len(input)-1] == ']' {
 		input = input[1 : len(input)-1]
 	} else {
