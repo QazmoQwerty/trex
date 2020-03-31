@@ -75,8 +75,16 @@ func parseExpressionList(tokens *TokenChanManager, prec byte) ExpressionList {
 	return convertToExpressionList(parse(tokens, prec))
 }
 
-func parseExpression(tokens *TokenChanManager, prec byte) Expression {
+func parseOptionalExpression(tokens *TokenChanManager, prec byte) Expression {
 	return convertToExpression(parse(tokens, prec))
+}
+
+func parseExpression(tokens *TokenChanManager, prec byte) Expression {
+	pos := tokens.peek().pos
+	if exp := parseOptionalExpression(tokens, prec); exp != nil {
+		return exp
+	}
+	panic(myErr{"Expected an expression.", pos, ERR_PARSER})
 }
 
 func parseIdentifier(tokens *TokenChanManager) Identifier {
@@ -180,7 +188,7 @@ func nud(tokens *TokenChanManager) Expression {
 		return Literal{token.data, token.pos}
 	case TT_PARENTHESIS_OPEN:
 		tokens.next()
-		inner := parseExpression(tokens, 0)
+		inner := parseOptionalExpression(tokens, 0)
 		expectToken(tokens, TT_PARENTHESIS_CLOSE)
 		if inner == nil {
 			return EmptyExpression{token.pos}
@@ -189,10 +197,10 @@ func nud(tokens *TokenChanManager) Expression {
 	case TT_SQUARE_BRACKETS_OPEN:
 		tokens.next()
 		node := Subscript{nil, nil, nil, nil, token.pos}
-		node.idx1 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
+		node.idx1 = parseOptionalExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			node.idx2 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
+			node.idx2 = parseOptionalExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx1 == nil {
 				node.idx1 = Literal{"", tokens.peek().pos}
 			}
@@ -206,7 +214,7 @@ func nud(tokens *TokenChanManager) Expression {
 		}
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			node.idx3 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
+			node.idx3 = parseOptionalExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx3 == nil {
 				node.idx3 = Literal{"", tokens.peek().pos}
 			}
@@ -296,10 +304,10 @@ func led(tokens *TokenChanManager, node Node, ateWS bool) Node {
 		}
 		tokens.next()
 		node := Subscript{left, nil, nil, nil, token.pos}
-		node.idx1 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
+		node.idx1 = parseOptionalExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			node.idx2 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
+			node.idx2 = parseOptionalExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx1 == nil {
 				node.idx1 = Literal{"", tokens.peek().pos}
 			}
@@ -313,7 +321,7 @@ func led(tokens *TokenChanManager, node Node, ateWS bool) Node {
 		}
 		eatWS(tokens)
 		if eatToken(tokens, TT_COLON) {
-			node.idx3 = parseExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
+			node.idx3 = parseOptionalExpression(tokens, leftPrecedenceByOp(getOperatorByType(TT_COLON)))
 			if node.idx3 == nil {
 				node.idx3 = Literal{"", tokens.peek().pos}
 			}
@@ -334,7 +342,7 @@ func led(tokens *TokenChanManager, node Node, ateWS bool) Node {
 	var right Expression
 	if token.ty == TT_PARENTHESIS_OPEN {
 		tokens.next()
-		right = parseExpression(tokens, 0)
+		right = parseOptionalExpression(tokens, 0)
 		expectToken(tokens, TT_PARENTHESIS_CLOSE)
 	} else {
 		right = parseExpression(tokens, functionPrecedence)

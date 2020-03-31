@@ -1,27 +1,5 @@
 package main
 
-var allUserInput = []string{}
-var lastLine = ""
-
-func insertLine(line string) {
-	allUserInput = append(allUserInput, line)
-	lastLine = line
-}
-
-func readLine(prompt string) string {
-	line, err := globals.liner.Prompt(prompt)
-	if err != nil {
-		panic(err)
-	}
-	insertLine(line)
-	return line + "\n"
-}
-
-func showHelp() {
-	println("Help still needs to be written")
-	println("For now see the Language Specification: gitlab.com/QazmoQwerty/trex/-/blob/master/docs/trex-spec.md")
-}
-
 func lexLine(tokens chan Token, isFirstLine bool) {
 	prompt := ">>> "
 	if isFirstLine {
@@ -37,7 +15,7 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 				for len(tokens) > 0 {
 					<-tokens
 				}
-				tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+				tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
 			}
 		}()
 	} else {
@@ -45,15 +23,15 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 	}
 	line := readLine(prompt)
 	if line == "\n" {
-		tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
 		return
 	}
 	if line == "exit\n" || line == "quit\n" {
-		exitProgram()
+		ioExit()
 		return
 	} else if line == "help\n" {
 		showHelp()
-		tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
 		return
 	}
 	switch line[len(line)-2] {
@@ -73,13 +51,13 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 		lex(line, tokens)
 	}
 	if isFirstLine {
-		tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
 	}
 }
 
 func lexProgram(str string, tokens chan Token) {
 	lex(str, tokens)
-	tokens <- Token{TT_EOF, "", Position{0, 0, 0}}
+	tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
 }
 
 var lineCount = 1
@@ -206,7 +184,17 @@ func lex(str string, tokens chan Token) {
 				outputToken = false
 			}
 		case CT_ESCAPE:
-			// TODO - special character sequences like '\n'
+			tok.ty = TT_LITERAL
+			switch runes[idx] {
+			case 'n':
+				tok.data = "\n"
+			case 't':
+				tok.data = "\t"
+			default:
+				panic(myErr{"Invalid escape sequence.", tok.pos, ERR_LEXER})
+				// TODO - more special characters (EG \x4F)
+			}
+			idx++
 			break
 		case CT_ILLEGAL:
 			break
