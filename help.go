@@ -7,13 +7,18 @@ func showHelp(cmd string) {
 	}
 	switch str {
 	case "":
-		println("Help still needs to be written")
-		println("For now see the Language Specification: gitlab.com/QazmoQwerty/trex/-/blob/master/docs/trex-spec.md")
+		println("Use \"help xxx\" to see help for a particular subject.")
+		println("Or read the Language Specification: gitlab.com/QazmoQwerty/trex/-/blob/master/docs/trex-spec.md")
 	case "exit":
-
-		println("Exits the interpreter. Identical to \"quit\"")
+		println("Exits the interpreter. Identical to \"quit\".")
+	case "quit":
+		println("Exits the interpreter. Identical to \"exit\".")
+	case "toUpper":
+		println("\n\"toUpper\":\n")
+		println("Returns the input with all unicode letters mapped to their upper case.\n")
+		println("Use \"example toUpper\" to see an example.\n")
 	default:
-		println("No help exists for name \"" + str + "\".")
+		println("No help exists for \"" + str + "\".")
 	}
 }
 
@@ -24,14 +29,21 @@ func showExample(cmd string) {
 	}
 	switch str {
 	case "":
-		println("Enter \"example [name]\" to see an example for a particular definition.")
+		println("Use \"example xxx\" to see an example for a particular subject.")
 	case "example":
-		println("\n--> example toUpper")
-		println("[Example for the use of toUpper]\n")
+		println("\n--> example example")
+		println("[Do you really need to see this?]\n")
+	case "quit":
+		println("\nquit\n[trex will exit]\n")
+	case "exit":
+		println("\nexit\n[trex will exit]\n")
+	case "toLower":
+		println("\n--> toLower 'Hello World'")
+		println("hello world\n")
 	case "toUpper":
 		println("\n--> toUpper 'Hello World'")
 		println("HELLO WORLD\n")
 	default:
-		println("No example exists for name \"" + str + "\".")
+		println("No example exists for \"" + str + "\".")
 	}
 }

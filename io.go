@@ -35,30 +35,31 @@ func wordCompleter(line string, pos int) (string, []string, string) {
 		high++
 	}
 	word := line[low:high]
+	toLower := strings.ToLower(word)
 
 	completions := []string{}
 
 	for k := range predeclaredFuncs {
-		if strings.HasPrefix(k, word) {
+		if strings.HasPrefix(strings.ToLower(k), toLower) {
 			completions = append(completions, k)
 		}
 	}
 	for i := len(definitions) - 1; i > 0; i-- {
 		for k := range definitions[i] {
-			if strings.HasPrefix(k, word) {
+			if strings.HasPrefix(strings.ToLower(k), toLower) {
 				completions = append(completions, k)
 			}
 		}
 	}
 	for i := len(values) - 1; i > 0; i-- {
 		for k := range values[i] {
-			if strings.HasPrefix(k, word) {
+			if strings.HasPrefix(strings.ToLower(k), toLower) {
 				completions = append(completions, k)
 			}
 		}
 	}
 	for _, s := range getWordOperators() {
-		if strings.HasPrefix(s, word) {
+		if strings.HasPrefix(strings.ToLower(s), toLower) {
 			completions = append(completions, s)
 		}
 	}
