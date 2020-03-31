@@ -27,7 +27,7 @@ func wordCompleter(line string, pos int) (string, []string, string) {
 	if low < 0 || low > len([]rune(line)) || !unicode.IsLetter([]rune(line)[low]) {
 		return line[:pos], []string{}, line[pos:]
 	}
-	for low > 0 && unicode.IsLetter([]rune(line)[low]) {
+	for low > 0 && unicode.IsLetter([]rune(line)[low-1]) {
 		low--
 	}
 	high := pos - 1
@@ -35,6 +35,7 @@ func wordCompleter(line string, pos int) (string, []string, string) {
 		high++
 	}
 	word := line[low:high]
+
 	completions := []string{}
 
 	for k := range predeclaredFuncs {
@@ -84,11 +85,6 @@ func readLine(prompt string) string {
 	globals.liner.AppendHistory(line)
 	insertLine(line)
 	return line + "\n"
-}
-
-func showHelp() {
-	println("Help still needs to be written")
-	println("For now see the Language Specification: gitlab.com/QazmoQwerty/trex/-/blob/master/docs/trex-spec.md")
 }
 
 func printError(err error) {

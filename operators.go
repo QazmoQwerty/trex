@@ -123,7 +123,7 @@ func getOperator(str string) Operator {
 
 func getWordOperators() []string {
 	return []string{
-		"else", "for", "in", "where", "and", "if", "or", "not", "exit", "help", "quit",
+		"else", "for", "in", "where", "and", "if", "or", "not", "exit", "help", "quit", "example",
 	}
 }
 

@@ -1,5 +1,9 @@
 package main
 
+import (
+	"strings"
+)
+
 func lexLine(tokens chan Token, isFirstLine bool) {
 	prompt := ">>> "
 	if isFirstLine {
@@ -29,8 +33,12 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 	if line == "exit\n" || line == "quit\n" {
 		ioExit()
 		return
-	} else if line == "help\n" {
-		showHelp()
+	} else if line == "help\n" || strings.HasPrefix(line, "help ") {
+		showHelp(line)
+		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
+		return
+	} else if line == "example\n" || strings.HasPrefix(line, "example ") {
+		showExample(line)
 		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
 		return
 	}
