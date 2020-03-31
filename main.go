@@ -39,7 +39,7 @@ func main() {
 			case "-h":
 				println("Usage: trex <input> <files> [flags]")
 				println("    ")
-				println("    input: Either a file text inside \"quotes\"")
+				println("    input: Either a file text inside square brackets []")
 				println("    files: Files to be run. If no files are specified trex will run in interpreter mode.")
 				println("    flags: ")
 				println("        -h (show this message)")
@@ -68,7 +68,11 @@ func main() {
 		return
 	}
 
-	if input[0] == '"' && input[len(input)-1] == '"' {
+	for _, arg := range args {
+		println(arg)
+	}
+
+	if input[0] == '[' && input[len(input)-1] == ']' {
 		input = input[1 : len(input)-1]
 	} else {
 		content, err := ioutil.ReadFile(input)

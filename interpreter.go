@@ -77,8 +77,20 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 			return StringValue{strconv.Itoa(len(v.val))}
 		case NullValue:
 			return StringValue{"0"}
-		case DefinitionValue:
+		case DefinitionValue, PredeclaredDefinitionValue:
 			return StringValue{"1"}
+		}
+		return nil
+	},
+	"count": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		switch v := input.(type) {
+		case ListValue:
+			return StringValue{strconv.Itoa(len(v.vals))}
+		case StringValue, DefinitionValue, PredeclaredDefinitionValue:
+			return StringValue{"1"}
+		case NullValue:
+			return StringValue{"0"}
 		}
 		return nil
 	},
@@ -94,6 +106,14 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		assertParamsNum(0, params, pos)
 		ret := ListValue{}
 		for _, i := range strings.Split(input.String(), "\n") {
+			ret.vals = append(ret.vals, StringValue{i})
+		}
+		return ret
+	},
+	"words": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		ret := ListValue{}
+		for _, i := range strings.Fields(input.String()) {
 			ret.vals = append(ret.vals, StringValue{i})
 		}
 		return ret
