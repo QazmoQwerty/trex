@@ -120,10 +120,11 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"chars": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
-		str := input.String()
+		str := []rune(input.String())
 		ret := ListValue{make([]Value, len(str))}
 		for i, c := range str {
-			ret.vals[i] = StringValue{string(c)}
+			a := StringValue{string(c)}
+			ret.vals[i] = a
 		}
 		return ret
 	},
