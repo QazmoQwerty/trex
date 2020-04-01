@@ -86,15 +86,10 @@ func main() {
 func startInterpreter(input string) {
 	fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
 	fmt.Printf("Type \"help\" for help, \"exit\" to exit.\n")
-	tokens := make(chan Token)
-	// lexLine(tokens, true)
 	for true {
-		// lexerWg.Add(1)
-		go lexLine(tokens, true)
-		// lexerWg.Wait()
-		// println("done waiting!")
-		tokMan := createTokenChanManager(tokens)
-		ast := parseProgram(&tokMan, TT_EOF)
+		tokens := TokenQueue{}
+		lexLine(&tokens, true)
+		ast := parseProgram(&tokens, TT_EOF)
 		if globals.showAst {
 			println(printAst(ast).Print())
 		}

@@ -1,6 +1,6 @@
 package main
 
-func parseProgram(tokens *TokenChanManager, expected TokenType) Program {
+func parseProgram(tokens *TokenQueue, expected TokenType) Program {
 	prog := Program{nil, tokens.peek().pos}
 	eatWS(tokens)
 	eatToken(tokens, TT_TERMINATOR)
@@ -31,11 +31,11 @@ func parseProgram(tokens *TokenChanManager, expected TokenType) Program {
 	return prog
 }
 
-func eatWS(tokens *TokenChanManager) bool {
+func eatWS(tokens *TokenQueue) bool {
 	return eatToken(tokens, TT_WHITESPACE)
 }
 
-func parse(tokens *TokenChanManager, lastPrecedence byte) Node {
+func parse(tokens *TokenQueue, lastPrecedence byte) Node {
 	var left Node = nud(tokens)
 	if left == nil {
 		return nil
@@ -45,7 +45,7 @@ func parse(tokens *TokenChanManager, lastPrecedence byte) Node {
 		ateWS := eatWS(tokens)
 		if precedence(tokens.peek()) <= lastPrecedence {
 			if ateWS && tokens.peek().ty != TT_TERMINATOR {
-				tokens.insertAtFront(Token{TT_WHITESPACE, " ", tokens.peek().pos})
+				tokens.pushFront(Token{TT_WHITESPACE, " ", tokens.peek().pos})
 			}
 			switch left.(type) {
 			case Definition:
@@ -53,19 +53,18 @@ func parse(tokens *TokenChanManager, lastPrecedence byte) Node {
 			default:
 				return convertToExpression(left)
 			}
-			// return left
 		}
 		left = led(tokens, left, ateWS)
 	}
 }
 
-func expectToken(tokens *TokenChanManager, ty TokenType) {
+func expectToken(tokens *TokenQueue, ty TokenType) {
 	if !eatToken(tokens, ty) {
 		panic(myErr{"\"" + getOperatorByType(ty).str + "\" expected", tokens.peek().pos, ERR_PARSER})
 	}
 }
 
-func eatToken(tokens *TokenChanManager, ty TokenType) bool {
+func eatToken(tokens *TokenQueue, ty TokenType) bool {
 	if tokens.peek().ty == ty {
 		tokens.next()
 		return true
@@ -73,15 +72,15 @@ func eatToken(tokens *TokenChanManager, ty TokenType) bool {
 	return false
 }
 
-func parseExpressionList(tokens *TokenChanManager, prec byte) ExpressionList {
+func parseExpressionList(tokens *TokenQueue, prec byte) ExpressionList {
 	return convertToExpressionList(parse(tokens, prec))
 }
 
-func parseOptionalExpression(tokens *TokenChanManager, prec byte) Expression {
+func parseOptionalExpression(tokens *TokenQueue, prec byte) Expression {
 	return convertToExpression(parse(tokens, prec))
 }
 
-func parseExpression(tokens *TokenChanManager, prec byte) Expression {
+func parseExpression(tokens *TokenQueue, prec byte) Expression {
 	pos := tokens.peek().pos
 	if exp := parseOptionalExpression(tokens, prec); exp != nil {
 		return exp
@@ -89,11 +88,11 @@ func parseExpression(tokens *TokenChanManager, prec byte) Expression {
 	panic(myErr{"Expected an expression.", pos, ERR_PARSER})
 }
 
-func parseIdentifier(tokens *TokenChanManager) Identifier {
+func parseIdentifier(tokens *TokenQueue) Identifier {
 	return convertToIdentifier(parse(tokens, 0))
 }
 
-func parseIdentifierList(tokens *TokenChanManager) IdentifierList {
+func parseIdentifierList(tokens *TokenQueue) IdentifierList {
 	return convertToIdentifierList(parse(tokens, 0))
 }
 
@@ -177,13 +176,12 @@ func convertToExpressionList(node Node) ExpressionList {
 	}
 }
 
-func nud(tokens *TokenChanManager) Expression {
+func nud(tokens *TokenQueue) Expression {
 	eatWS(tokens)
 	token := tokens.peek()
 	switch tokens.peek().ty {
 	case TT_IDENTIFIER:
 		tokens.next()
-		// return FunctionCall{Identifier{token.data, token.pos}, ExpressionList{}, nil, token.pos}
 		return Identifier{token.data, token.pos}
 	case TT_LITERAL:
 		tokens.next()
@@ -240,7 +238,7 @@ func nud(tokens *TokenChanManager) Expression {
 	return nil
 }
 
-func led(tokens *TokenChanManager, node Node, ateWS bool) Node {
+func led(tokens *TokenQueue, node Node, ateWS bool) Node {
 	token := tokens.peek()
 	left := convertToExpression(node)
 	switch token.ty {
@@ -297,7 +295,7 @@ func led(tokens *TokenChanManager, node Node, ateWS bool) Node {
 		if eatToken(tokens, TT_WHERE) {
 			comp.where = parseExpression(tokens, 0)
 		} else if ateWS {
-			tokens.insertAtFront(Token{TT_WHITESPACE, "", tokens.peek().pos})
+			tokens.pushFront(Token{TT_WHITESPACE, "", tokens.peek().pos})
 		}
 		return comp
 	case TT_SQUARE_BRACKETS_OPEN:

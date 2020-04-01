@@ -4,21 +4,22 @@ import (
 	"strings"
 )
 
-func lexLine(tokens chan Token, isFirstLine bool) {
+func lexLine(tokens *TokenQueue, isFirstLine bool) {
 	prompt := ">>> "
 	if isFirstLine {
 		defer func() {
 			if err := recover(); err != nil {
+				lineCount++
 				switch e := err.(type) {
 				case error:
 					printError(e)
 				default:
 					panic(err)
 				}
-				for len(tokens) > 0 {
-					<-tokens
+				for tokens.size() > 0 {
+					tokens.next()
 				}
-				tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
+				tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
 			}
 		}()
 	} else {
@@ -26,7 +27,7 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 	}
 	line := readLine(prompt)
 	if line == "\n" {
-		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
+		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
 		return
 	}
 	if line == "exit\n" || line == "quit\n" {
@@ -34,11 +35,11 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 		return
 	} else if line == "help\n" || strings.HasPrefix(line, "help ") {
 		showHelp(line)
-		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
+		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
 		return
 	} else if line == "example\n" || strings.HasPrefix(line, "example ") {
 		showExample(line)
-		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
+		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
 		return
 	}
 	switch line[len(line)-2] {
@@ -58,20 +59,19 @@ func lexLine(tokens chan Token, isFirstLine bool) {
 		lex(line, tokens)
 	}
 	if isFirstLine {
-		tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
+		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
 	}
 }
 
-func lexProgram(str string, tokens chan Token) {
+func lexProgram(str string, tokens *TokenQueue) {
 	lex(str, tokens)
-	tokens <- Token{TT_EOF, "", Position{lineCount, 0, 0}}
+	tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
 }
 
 var lineCount = 1
 
-func lex(str string, tokens chan Token) {
+func lex(str string, tokens *TokenQueue) {
 	runes := []rune(str)
-	// line := 1
 	pos := 0
 	idx := 0
 	var beforeLast Token
@@ -80,7 +80,6 @@ func lex(str string, tokens chan Token) {
 	last.ty = TT_UNKNOWN
 	for idx < len(runes) {
 		outputToken := true
-		// tok := Token{CT_ILLEGAL, string(runes[idx]), Position{line, pos, pos + 1}}
 		tok := Token{CT_ILLEGAL, string(runes[idx]), Position{lineCount, pos, pos + 1}}
 		curr := runes[idx]
 		idx++
@@ -92,7 +91,6 @@ func lex(str string, tokens chan Token) {
 				outputToken = false
 			}
 		case CT_NEWLINE:
-			// line++
 			lineCount++
 			pos = 0
 			tok.ty = TT_TERMINATOR
@@ -162,7 +160,6 @@ func lex(str string, tokens chan Token) {
 							break
 						}
 					} else if runes[idx] == '\n' {
-						// line++
 						lineCount++
 						pos = 0
 					}
@@ -181,7 +178,6 @@ func lex(str string, tokens chan Token) {
 			case TT_MULTI_LINE_COMMENT_OPEN:
 				for idx+1 < len(runes) && !(runes[idx] == '*' && runes[idx+1] == '/') {
 					if runes[idx] == '\n' {
-						// line++
 						lineCount++
 						pos = 0
 					} else {
@@ -213,7 +209,7 @@ func lex(str string, tokens chan Token) {
 			tok.pos.end = pos
 		}
 		if outputToken {
-			tokens <- tok
+			tokens.pushBack(tok)
 			beforeLast = last
 			last = tok
 		}

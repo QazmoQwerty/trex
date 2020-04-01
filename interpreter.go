@@ -240,7 +240,6 @@ func (this Program) interpret(input Value) Value {
 		case NullValue, *NullValue:
 			break
 		default:
-			// ret.val = toString(s, input)
 			ret.val += s.String()
 
 			if i+1 != len(this.lines) {
@@ -398,7 +397,6 @@ func (this UnaryOperation) interpret(input Value) Value {
 		return val
 	}
 
-	// str := toString(val, input)
 	str := val.String()
 
 	switch this.op.ty {
@@ -454,7 +452,6 @@ func (this Comprehension) interpret(input Value) Value {
 	enterBlock()
 	for _, v := range list {
 		values[len(values)-1][this.fors[0].id.id] = v
-		// if this.where == nil || toString(this.where.interpret(input), input) != "" {
 		if this.where == nil || this.where.interpret(input).String() != "" {
 			ret.vals = append(ret.vals, this.exp.interpret(input))
 		}
