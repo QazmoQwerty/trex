@@ -296,12 +296,17 @@ The following are binary operators:
 %               |   numeric remainder
 <<              |   string addition
 \*\*            |   string multiplication
-<               |   smaller than
-<=              |   smaller or equal to 
-\>              |   greater than
-\>=             |   greater or equal to
+<               |   numeric smaller than
+<=              |   numeric smaller or equal to 
+\>              |   numeric greater than
+\>=             |   numeric greater or equal to
+.<.             |   lexical smaller than
+.<=.            |   lexical smaller or equal to 
+.\>.            |   lexical greater than
+.\>=.           |   lexical greater or equal to
 =               |   equal
 !=              |   not equal
+..              |   range
 and             |   logical and
 or              |   logical or
 
@@ -352,3 +357,7 @@ Comprehensions provide a concise way to create lists.
 >>> x*y for x in foo for y in foo where x*y != 0
 1, 2, 3, 2, 4, 6, 3, 6, 9
 ```
+
+## Built-in Definitions
+
+Trex provides a variety of built in definitions, see [here](builtin-defs.md) for a detailed list.

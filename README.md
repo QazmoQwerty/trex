@@ -4,8 +4,15 @@ A toy language for quick & easy string manipulation.
 
 For more info read the [language specification](docs/trex-spec.md)
 
-# Code Examples
+## Install
 
+Assuming you have go installed:
+
+```
+go get gitlab.com/QazmoQwerty/trex
+```
+
+## Code Examples
 
 ```
 factorial(n) => 1 if n = 0 else n * factorial(n - 1)

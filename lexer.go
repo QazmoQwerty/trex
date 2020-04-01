@@ -7,7 +7,6 @@ import (
 func lexLine(tokens chan Token, isFirstLine bool) {
 	prompt := ">>> "
 	if isFirstLine {
-
 		defer func() {
 			if err := recover(); err != nil {
 				switch e := err.(type) {
@@ -145,6 +144,9 @@ func lex(str string, tokens chan Token) {
 			}
 			tok.ty = opType(tok.data)
 			switch opType(tok.data) {
+			case TT_UNKNOWN:
+				tok.pos.end = pos
+				panic(myErr{"Operator \"" + tok.data + "\" does not exist.", tok.pos, ERR_LEXER})
 			case TT_SINGLE_QUOTE, TT_DOUBLE_QUOTE:
 				tok.ty = TT_LITERAL
 				close := rune(tok.data[0])

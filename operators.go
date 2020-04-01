@@ -72,10 +72,18 @@ func getOperator(str string) Operator {
 		return Operator{TT_SUB, str, LEFT_TO_RIGHT, 90, true}
 	case "<<":
 		return Operator{TT_STRING_ADD, str, LEFT_TO_RIGHT, 90, true}
+	case ".<.":
+		return Operator{TT_LEXICAL_SMALLER, str, LEFT_TO_RIGHT, 85, true}
+	case ".<=.":
+		return Operator{TT_LEXICAL_SMALLER_EQUAL, str, LEFT_TO_RIGHT, 85, true}
+	case ".>.":
+		return Operator{TT_LEXICAL_GREATER, str, LEFT_TO_RIGHT, 85, true}
+	case ".>=.":
+		return Operator{TT_LEXICAL_GREATER_EQUAL, str, LEFT_TO_RIGHT, 85, true}
 	case "<":
 		return Operator{TT_SMALLER, str, LEFT_TO_RIGHT, 80, true}
 	case "<=":
-		return Operator{TT_SMALLER_EQAUAL, str, LEFT_TO_RIGHT, 80, true}
+		return Operator{TT_SMALLER_EQUAL, str, LEFT_TO_RIGHT, 80, true}
 	case ">":
 		return Operator{TT_GREATER, str, LEFT_TO_RIGHT, 80, true}
 	case ">=":
@@ -161,10 +169,18 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_SUB, "-", LEFT_TO_RIGHT, 90, true}
 	case TT_STRING_ADD:
 		return Operator{TT_STRING_ADD, "<<", LEFT_TO_RIGHT, 90, true}
+	case TT_LEXICAL_SMALLER:
+		return Operator{TT_SMALLER, ".<.", LEFT_TO_RIGHT, 85, true}
+	case TT_LEXICAL_SMALLER_EQUAL:
+		return Operator{TT_SMALLER_EQUAL, ".<=.", LEFT_TO_RIGHT, 85, true}
+	case TT_LEXICAL_GREATER:
+		return Operator{TT_GREATER, ".>.", LEFT_TO_RIGHT, 85, true}
+	case TT_LEXICAL_GREATER_EQUAL:
+		return Operator{TT_GREATER_EQUAL, ".>=.", LEFT_TO_RIGHT, 85, true}
 	case TT_SMALLER:
 		return Operator{TT_SMALLER, "<", LEFT_TO_RIGHT, 80, true}
-	case TT_SMALLER_EQAUAL:
-		return Operator{TT_SMALLER_EQAUAL, "<=", LEFT_TO_RIGHT, 80, true}
+	case TT_SMALLER_EQUAL:
+		return Operator{TT_SMALLER_EQUAL, "<=", LEFT_TO_RIGHT, 80, true}
 	case TT_GREATER:
 		return Operator{TT_GREATER, ">", LEFT_TO_RIGHT, 80, true}
 	case TT_GREATER_EQUAL:
@@ -240,10 +256,14 @@ const (
 	TT_MULTI_LINE_COMMENT_CLOSE
 	TT_EQUAL
 	TT_SMALLER
-	TT_SMALLER_EQAUAL
+	TT_SMALLER_EQUAL
 	TT_GREATER
 	TT_NOT_EQUAL
 	TT_GREATER_EQUAL
+	TT_LEXICAL_SMALLER
+	TT_LEXICAL_SMALLER_EQUAL
+	TT_LEXICAL_GREATER
+	TT_LEXICAL_GREATER_EQUAL
 	TT_NOT
 	TT_AND
 	TT_OR

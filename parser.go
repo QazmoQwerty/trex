@@ -19,7 +19,9 @@ func parseProgram(tokens *TokenChanManager, expected TokenType) Program {
 	}()
 	for !eatToken(tokens, expected) {
 		node := parse(tokens, 0)
-		prog.lines = append(prog.lines, node)
+		if node != nil {
+			prog.lines = append(prog.lines, node)
+		}
 		if eatToken(tokens, expected) {
 			return prog
 		}

@@ -297,11 +297,8 @@ func atoi(str string) int {
 
 func (this BinaryOperation) interpret(input Value) Value {
 	left := this.left.interpret(input)
-
 	right := this.right.interpret(input)
-
 	leftStr := left.String()
-
 	rightStr := right.String()
 
 	switch this.op.ty {
@@ -373,6 +370,22 @@ func (this BinaryOperation) interpret(input Value) Value {
 			list.vals = append(list.vals, StringValue{strconv.Itoa(i)})
 		}
 		return list
+	case TT_SMALLER:
+		return createBoolValue(atoi(leftStr) < atoi(rightStr))
+	case TT_SMALLER_EQUAL:
+		return createBoolValue(atoi(leftStr) <= atoi(rightStr))
+	case TT_GREATER:
+		return createBoolValue(atoi(leftStr) > atoi(rightStr))
+	case TT_GREATER_EQUAL:
+		return createBoolValue(atoi(leftStr) >= atoi(rightStr))
+	case TT_LEXICAL_SMALLER:
+		return createBoolValue(strings.Compare(leftStr, rightStr) < 0)
+	case TT_LEXICAL_SMALLER_EQUAL:
+		return createBoolValue(strings.Compare(leftStr, rightStr) <= 0)
+	case TT_LEXICAL_GREATER:
+		return createBoolValue(strings.Compare(leftStr, rightStr) > 0)
+	case TT_LEXICAL_GREATER_EQUAL:
+		return createBoolValue(strings.Compare(leftStr, rightStr) >= 0)
 	default:
 		panic(myErr{"unimplemented binary operator \"" + this.op.str + "\"", this.pos, ERR_INTERPRETER})
 	}
@@ -518,7 +531,6 @@ func (this Subscript) interpret(input Value) Value {
 	vals := valToList(val, input)
 
 	if this.idx2 == nil && this.idx3 == nil {
-		// idx := atoi(toString(this.idx1.interpret(input), input))
 		idx := atoi(this.idx1.interpret(input).String())
 		if idx < 0 {
 			idx += len(vals)
@@ -526,8 +538,6 @@ func (this Subscript) interpret(input Value) Value {
 		return vals[idx]
 	}
 	if this.idx3 == nil {
-		// lowStr := toString(this.idx1.interpret(input), input)
-		// highStr := toString(this.idx2.interpret(input), input)
 		lowStr := this.idx1.interpret(input).String()
 		highStr := this.idx2.interpret(input).String()
 		low, high := 0, len(vals)
@@ -551,15 +561,13 @@ func (this Subscript) interpret(input Value) Value {
 			return StringValue{t.String()[low:high]}
 		}
 	}
-	panic(myErr{"unimplemented interpret method7", this.pos, ERR_INTERPRETER})
+	panic(myErr{"Third indices are not supported yet.", this.pos, ERR_INTERPRETER})
 }
 
 func (this IdentifierList) interpret(input Value) Value {
 	list := ListValue{}
 	for _, n := range this.identifiers {
-		val := n.interpret(input)
-
-		list.vals = append(list.vals, val)
+		list.vals = append(list.vals, n.interpret(input))
 	}
 	return list
 }
