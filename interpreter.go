@@ -670,12 +670,12 @@ func (this Subscript) interpret(input Value) Value {
 		step = atoi(stepStr, this.idx3.getPosition())
 	}
 
+	if step == 0 {
+		panic(myErr{"slice step index cannot be zero", this.idx3.getPosition(), ERR_INTERPRETER})
+	}
 	switch t := val.(type) { // TODO - make this more efficient by preallocating memory
 	case ListValue:
 		newVals := ListValue{}
-		if step == 0 {
-			panic(myErr{"slice step index cannot be zero", this.idx3.getPosition(), ERR_INTERPRETER})
-		}
 		if step > 0 {
 			for i := low; i < high; i++ {
 				if i%step == 0 {
@@ -693,21 +693,19 @@ func (this Subscript) interpret(input Value) Value {
 	case StringValue:
 		newStr := StringValue{}
 		str := t.String()
-		if step == 0 {
-			panic(myErr{"slice step index cannot be zero", this.idx3.getPosition(), ERR_INTERPRETER})
+		if step > 0 {
+			for i := low; i < high; i++ {
+				if i%step == 0 {
+					newStr.val += string(str[i])
+				}
+			}
+		} else {
+			for i := high - 1; i >= low; i-- {
+				if (len(vals)-1-i)%step == 0 {
+					newStr.val += string(str[i])
+				}
+			}
 		}
-		for i := low; i < high; i += step {
-			newStr.val += string(str[i])
-		}
-		// if step > 0 {
-
-		// } else {
-		// 	for i := high - 1; i >= low; i-- {
-		// 		if (len(vals)-1-i)%step == 0 {
-		// 			newStr.val += string(str[i])
-		// 		}
-		// 	}
-		// }
 		return newStr
 	}
 
