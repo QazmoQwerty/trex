@@ -72,6 +72,24 @@ func eatToken(tokens *TokenQueue, ty TokenType) bool {
 	return false
 }
 
+func parseForClause(tokens *TokenQueue) []ForClause {
+	ret := []ForClause{}
+
+	list := parseExpressionList(tokens, leftPrecedenceByTy(TT_FOR))
+	for _, i := range list.expressions {
+		switch bo := i.(type) {
+		case BinaryOperation:
+			if bo.op.ty != TT_IN {
+				panic(myErr{"expected a for clause", i.getPosition(), ERR_PARSER})
+			}
+			ret = append(ret, ForClause{convertToIdentifier(bo.left), bo.right})
+		default:
+			panic(myErr{"expected a for clause" + bo.toString(), i.getPosition(), ERR_PARSER})
+		}
+	}
+	return ret
+}
+
 func parseExpressionList(tokens *TokenQueue, prec byte) ExpressionList {
 	return convertToExpressionList(parse(tokens, prec))
 }
@@ -244,15 +262,15 @@ func led(tokens *TokenQueue, node Node, ateWS bool) Node {
 	switch token.ty {
 	case TT_IF:
 		tokens.next()
-		cond := parseExpression(tokens, 0)
+		cond := parseExpression(tokens, leftPrecedenceByTy(TT_IF))
 		eatWS(tokens)
 		expectToken(tokens, TT_ELSE)
-		elseB := parseExpression(tokens, 0)
+		elseB := parseExpression(tokens, leftPrecedenceByTy(TT_IF))
 		pos := Position{left.getPosition().line, left.getPosition().start, elseB.getPosition().end}
 		return Conditional{left, elseB, cond, pos}
 	case TT_COMMA:
 		tokens.next()
-		right := parseExpression(tokens, 0)
+		right := parseExpression(tokens, leftPrecedenceByTy(TT_COMMA))
 		list := ExpressionList{nil, left.getPosition()}
 		list.expressions = append(list.expressions, left)
 		switch r := right.(type) {
@@ -283,16 +301,18 @@ func led(tokens *TokenQueue, node Node, ateWS bool) Node {
 			left.getPosition(),
 		}
 	case TT_FOR:
-		clauses := []ForClause{}
-		for eatToken(tokens, TT_FOR) {
-			ident := parseIdentifier(tokens)
-			eatWS(tokens)
-			expectToken(tokens, TT_IN)
-			clauses = append(clauses, ForClause{ident, parseExpression(tokens, 0)})
-		}
+		tokens.next()
+		clauses := parseForClause(tokens)
+		// clauses := []ForClause{}
+		// for eatToken(tokens, TT_FOR) {
+		// 	ident := parseIdentifier(tokens)
+		// 	eatWS(tokens)
+		// 	expectToken(tokens, TT_IN)
+		// 	clauses = append(clauses, ForClause{ident, parseExpression(tokens, 0)})
+		// }
 		comp := Comprehension{left, clauses, nil, left.getPosition()}
 		ateWS := eatWS(tokens)
-		if eatToken(tokens, TT_WHERE) {
+		if eatToken(tokens, TT_IF) {
 			comp.where = parseExpression(tokens, 0)
 		} else if ateWS {
 			tokens.pushFront(Token{TT_WHITESPACE, "", tokens.peek().pos})

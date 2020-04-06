@@ -498,18 +498,42 @@ func valToList(arr Value, input Value) []Value {
 	return list
 }
 
-func (this Comprehension) interpret(input Value) Value {
-	list := valToList(this.fors[0].exp.interpret(input), input)
+func (this Comprehension) foo(input Value, idx int, list []Value) ListValue {
 	ret := ListValue{}
 	enterBlock()
-	for _, v := range list {
-		values[len(values)-1][this.fors[0].id.id] = v
-		if this.where == nil || this.where.interpret(input).String() != "" {
-			ret.vals = append(ret.vals, this.exp.interpret(input))
+	switch len(this.fors) - idx {
+	case 0:
+		break
+	case 1:
+		for _, v := range list {
+			values[len(values)-1][this.fors[idx].id.id] = v
+			if this.where == nil || this.where.interpret(input).String() != "" {
+				ret.vals = append(ret.vals, this.exp.interpret(input))
+			}
+		}
+	default:
+		for _, v := range list {
+			values[len(values)-1][this.fors[idx].id.id] = v
+			ret.vals = append(ret.vals, this.foo(input, idx+1, list).vals...)
 		}
 	}
 	exitBlock()
 	return ret
+}
+
+func (this Comprehension) interpret(input Value) Value {
+	list := valToList(this.fors[0].exp.interpret(input), input)
+	return this.foo(input, 0, list)
+	// ret := ListValue{}
+	// enterBlock()
+	// for _, v := range list {
+	// 	values[len(values)-1][this.fors[0].id.id] = v
+	// 	if this.where == nil || this.where.interpret(input).String() != "" {
+	// 		ret.vals = append(ret.vals, this.exp.interpret(input))
+	// 	}
+	// }
+	// exitBlock()
+	// return ret
 }
 
 func (this ExpressionList) interpret(input Value) Value {
@@ -586,23 +610,24 @@ func (this Subscript) interpret(input Value) Value {
 		}
 		return vals[idx]
 	}
-	if this.idx3 == nil {
-		lowStr := this.idx1.interpret(input).String()
-		highStr := this.idx2.interpret(input).String()
-		low, high := 0, len(vals)
-		if lowStr != "" {
-			low = atoi(lowStr, this.idx1.getPosition())
-			if low < 0 {
-				low += len(vals)
-			}
-		}
-		if highStr != "" {
-			high = atoi(highStr, this.idx2.getPosition())
-			if high < 0 {
-				high += len(vals)
-			}
-		}
 
+	lowStr := this.idx1.interpret(input).String()
+	highStr := this.idx2.interpret(input).String()
+	low, high := 0, len(vals)
+	if lowStr != "" {
+		low = atoi(lowStr, this.idx1.getPosition())
+		if low < 0 {
+			low += len(vals)
+		}
+	}
+	if highStr != "" {
+		high = atoi(highStr, this.idx2.getPosition())
+		if high < 0 {
+			high += len(vals)
+		}
+	}
+
+	if this.idx3 == nil {
 		switch t := val.(type) {
 		case ListValue:
 			return ListValue{vals[low:high]}
@@ -610,6 +635,54 @@ func (this Subscript) interpret(input Value) Value {
 			return StringValue{t.String()[low:high]}
 		}
 	}
+
+	stepStr := this.idx3.interpret(input).String()
+	step := 1
+	if stepStr != "" {
+		step = atoi(stepStr, this.idx3.getPosition())
+	}
+
+	switch t := val.(type) { // TODO - make this more efficient by preallocating memory
+	case ListValue:
+		newVals := ListValue{}
+		if step == 0 {
+			panic(myErr{"slice step index cannot be zero", this.idx3.getPosition(), ERR_INTERPRETER})
+		}
+		if step > 0 {
+			for i := low; i < high; i++ {
+				if i%step == 0 {
+					newVals.vals = append(newVals.vals, vals[i])
+				}
+			}
+		} else {
+			for i := high - 1; i >= low; i-- {
+				if (len(vals)-1-i)%step == 0 {
+					newVals.vals = append(newVals.vals, vals[i])
+				}
+			}
+		}
+		return newVals
+	case StringValue:
+		newStr := StringValue{}
+		str := t.String()
+		if step == 0 {
+			panic(myErr{"slice step index cannot be zero", this.idx3.getPosition(), ERR_INTERPRETER})
+		}
+		for i := low; i < high; i += step {
+			newStr.val += string(str[i])
+		}
+		// if step > 0 {
+
+		// } else {
+		// 	for i := high - 1; i >= low; i-- {
+		// 		if (len(vals)-1-i)%step == 0 {
+		// 			newStr.val += string(str[i])
+		// 		}
+		// 	}
+		// }
+		return newStr
+	}
+
 	panic(myErr{"Third indices are not supported yet.", this.pos, ERR_INTERPRETER})
 }
 

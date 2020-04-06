@@ -25,6 +25,10 @@ func leftPrecedence(token Token) byte {
 	return op.precedence
 }
 
+func leftPrecedenceByTy(ty TokenType) byte {
+	return leftPrecedenceByOp(getOperatorByType(ty))
+}
+
 func leftPrecedenceByOp(op Operator) byte {
 	if op.associativity == RIGHT_TO_LEFT {
 		return op.precedence - 1
@@ -96,10 +100,10 @@ func getOperator(str string) Operator {
 		return Operator{TT_AND, str, LEFT_TO_RIGHT, 60, true}
 	case "or":
 		return Operator{TT_OR, str, LEFT_TO_RIGHT, 50, true}
-	case "if":
-		return Operator{TT_IF, str, RIGHT_TO_LEFT, 40, false}
 	case ",":
-		return Operator{TT_COMMA, str, LEFT_TO_RIGHT, 30, false}
+		return Operator{TT_COMMA, str, LEFT_TO_RIGHT, 40, false}
+	case "if":
+		return Operator{TT_IF, str, RIGHT_TO_LEFT, 30, false}
 	case ":":
 		return Operator{TT_COLON, str, LEFT_TO_RIGHT, 20, false}
 	case "=>":
@@ -119,9 +123,9 @@ func getOperator(str string) Operator {
 	case "else":
 		return Operator{TT_ELSE, str, false, 0, false}
 	case "for":
-		return Operator{TT_FOR, str, false, 45, false}
+		return Operator{TT_FOR, str, false, 35, false}
 	case "in":
-		return Operator{TT_IN, str, false, 0, false}
+		return Operator{TT_IN, str, false, 45, true}
 	case "where":
 		return Operator{TT_WHERE, str, false, 0, false}
 	default:
@@ -193,10 +197,10 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_AND, "and", LEFT_TO_RIGHT, 60, true}
 	case TT_OR:
 		return Operator{TT_OR, "or", LEFT_TO_RIGHT, 50, true}
-	case TT_IF:
-		return Operator{TT_IF, "if", RIGHT_TO_LEFT, 40, false}
 	case TT_COMMA:
-		return Operator{TT_COMMA, ",", LEFT_TO_RIGHT, 30, false}
+		return Operator{TT_COMMA, ",", LEFT_TO_RIGHT, 40, false}
+	case TT_IF:
+		return Operator{TT_IF, "if", RIGHT_TO_LEFT, 30, false}
 	case TT_COLON:
 		return Operator{TT_COLON, ":", LEFT_TO_RIGHT, 20, false}
 	case TT_DEFINE:
@@ -216,9 +220,9 @@ func getOperatorByType(op TokenType) Operator {
 	case TT_ELSE:
 		return Operator{TT_ELSE, "else", false, 0, false}
 	case TT_FOR:
-		return Operator{TT_FOR, "for", false, 45, false}
+		return Operator{TT_FOR, "for", false, 32, false}
 	case TT_IN:
-		return Operator{TT_IN, "in", false, 0, false}
+		return Operator{TT_IN, "in", false, 45, true}
 	case TT_WHERE:
 		return Operator{TT_WHERE, "where", false, 0, false}
 	default:
