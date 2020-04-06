@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bufio"
+	"errors"
+	"fmt"
+	"io"
 	"os"
 	"strings"
 	"unicode"
@@ -93,18 +97,32 @@ func printError(err error) {
 	case myErr:
 		whiteBold := color.New(color.FgWhite).Add(color.Bold).PrintfFunc()
 		redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
-		if e.pos.line == lineCount-1 {
-			print("    ")
-		} else {
+		line := ""
+		if globals.codeFile != "" {
 			whiteBold("At line %d\n", e.pos.line)
-			if e.pos.line-1 >= len(allUserInput) {
-				println()
+			var err error
+			line, err = getLineOfFile(globals.codeFile, e.pos.line)
+			if err != nil {
+				println(err.Error())
+				return
 			} else {
-				print("    " + allUserInput[e.pos.line-1] + "\n    ")
+				print(line)
+			}
+		} else {
+			if e.pos.line == lineCount-1 {
+				print("    ")
+			} else {
+				whiteBold("At line %d\n", e.pos.line)
+				if e.pos.line-1 >= len(allUserInput) {
+					println()
+				} else {
+					line = allUserInput[e.pos.line-1]
+					print("    " + line + "\n    ")
+				}
 			}
 		}
 		for i := 0; i < e.pos.start; i++ {
-			if allUserInput[e.pos.line-1][i] == '\t' {
+			if line[i] == '\t' {
 				print("\t")
 			} else {
 				print(" ")
@@ -133,4 +151,37 @@ func printAst(ast Node) gotree.Tree {
 		}
 	}
 	return tree
+}
+
+func getLineOfFile(fn string, n int) (string, error) {
+	if n < 1 {
+		return "", fmt.Errorf("invalid request: line %d", n)
+	}
+	f, err := os.Open(fn)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	bf := bufio.NewReader(f)
+	var line string
+	for lnum := 0; lnum < n; lnum++ {
+		line, err = bf.ReadString('\n')
+		if err == io.EOF {
+			switch lnum {
+			case 0:
+				return "", errors.New("no lines in file")
+			case 1:
+				return "", errors.New("only 1 line")
+			default:
+				return "", fmt.Errorf("only %d lines", lnum)
+			}
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+	if line == "" {
+		return "", fmt.Errorf("line %d empty", n)
+	}
+	return line, nil
 }

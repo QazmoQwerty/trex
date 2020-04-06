@@ -6,8 +6,10 @@ func parseProgram(tokens *TokenQueue, expected TokenType) Program {
 	eatToken(tokens, TT_TERMINATOR)
 	defer func() {
 		if err := recover(); err != nil {
-			for !eatToken(tokens, TT_TERMINATOR) && !eatToken(tokens, expected) {
-				tokens.next() // forward to the next line since this one is invalid
+			if globals.codeFile == "" {
+				for !eatToken(tokens, TT_TERMINATOR) && !eatToken(tokens, expected) {
+					tokens.next() // forward to the next line since this one is invalid
+				}
 			}
 			switch e := err.(type) {
 			case error:

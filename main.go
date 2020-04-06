@@ -14,9 +14,11 @@ const version = "0.3.1"
 const gitlabLink = "gitlab.com/QazmoQwerty/trex"
 
 var globals struct {
-	liner   *liner.State
-	showAst bool
-	showLex bool
+	liner          *liner.State
+	showAst        bool
+	showLex        bool
+	forceInterpret bool
+	codeFile       string
 }
 
 func main() {
@@ -28,8 +30,10 @@ func main() {
 	fileNames := []string{}
 	redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
 
+	globals.codeFile = ""
 	globals.showAst = false
 	globals.showLex = false
+	globals.forceInterpret = false
 
 	for _, arg := range args {
 		if arg[0] == '-' {
@@ -41,11 +45,14 @@ func main() {
 				println("    files: Files to be run. If no files are specified trex will run in interpreter mode.")
 				println("    flags: ")
 				println("        -h (show this message)")
+				println("        -i (run interpreter after code files have ben executed)")
 				ioExit()
 			case "-ast":
 				globals.showAst = true
 			case "-lex":
 				globals.showLex = true
+			case "-i":
+				globals.forceInterpret = true
 			default:
 				redBold("Error: ")
 				println("Unknown flag \"" + arg + "\".")
@@ -84,6 +91,39 @@ func main() {
 
 	if len(fileNames) == 0 {
 		startInterpreter(input)
+	} else {
+		for _, f := range fileNames {
+			interpretFile(input, f)
+		}
+		if globals.forceInterpret {
+			startInterpreter(input)
+		}
+	}
+}
+
+func interpretFile(input string, file string) {
+	globals.codeFile = file
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		color.New(color.FgRed).Add(color.Bold).Printf("Error: ")
+		println("could not open file \"" + file + "\"")
+		ioExit()
+	}
+	tokens := TokenQueue{}
+	lexProgram(string(content), &tokens)
+	if globals.showLex {
+		for _, tok := range tokens.tokens {
+			showToken(tok)
+		}
+	}
+	ast := parseProgram(&tokens, TT_EOF)
+	if globals.showAst {
+		println(printAst(ast).Print())
+	}
+	if !isNil(ast) {
+		for _, n := range ast.lines {
+			runLine(n, StringValue{input})
+		}
 	}
 }
 
