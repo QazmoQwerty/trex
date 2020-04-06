@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -224,6 +225,22 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 			return vals.vals[0]
 		}
 		return vals
+	},
+	"matches": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		r := regexp.MustCompile(params.vals[0].String())
+		matches := r.FindAllString(input.String(), -1)
+		assertParamsNum(1, params, pos)
+		ret := ListValue{make([]Value, len(matches))}
+		for i := 0; i < len(matches); i++ {
+			ret.vals[i] = StringValue{matches[i]}
+		}
+		return ret
+	},
+	"hasMatch": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		r := regexp.MustCompile(params.vals[0].String())
+		return createBoolValue(r.MatchString(input.String()))
 	},
 }
 
