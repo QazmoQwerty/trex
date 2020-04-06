@@ -212,6 +212,9 @@ func nud(tokens *TokenQueue) Expression {
 			return EmptyExpression{token.pos}
 		}
 		return inner
+	case TT_ANON_DEFINE:
+		tokens.next()
+		return AnonDefinition{IdentifierList{}, parseExpression(tokens, leftPrecedenceByTy(TT_ANON_DEFINE)), token.pos}
 	case TT_SQUARE_BRACKETS_OPEN:
 		tokens.next()
 		node := Subscript{nil, nil, nil, nil, token.pos}
@@ -268,6 +271,9 @@ func led(tokens *TokenQueue, node Node, ateWS bool) Node {
 		elseB := parseExpression(tokens, leftPrecedenceByTy(TT_IF))
 		pos := Position{left.getPosition().line, left.getPosition().start, elseB.getPosition().end}
 		return Conditional{left, elseB, cond, pos}
+	case TT_ANON_DEFINE:
+		tokens.next()
+		return AnonDefinition{convertToIdentifierList(left), parseExpression(tokens, leftPrecedenceByTy(TT_ANON_DEFINE)), token.pos}
 	case TT_COMMA:
 		tokens.next()
 		right := parseExpression(tokens, leftPrecedenceByTy(TT_COMMA))

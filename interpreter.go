@@ -491,6 +491,17 @@ func (this UnaryOperation) interpret(input Value) Value {
 	}
 }
 
+func (this AnonDefinition) interpret(input Value) Value {
+	return DefinitionValue{
+		Definition{
+			Identifier{"", this.pos},
+			this.ids,
+			Program{[]Node{this.exp}, this.pos},
+			this.pos,
+		},
+	}
+}
+
 func (this Conditional) interpret(input Value) Value {
 	left := this.condition.interpret(input)
 	if left.String() != "" {

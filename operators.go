@@ -37,7 +37,7 @@ func leftPrecedenceByOp(op Operator) byte {
 }
 
 func isUnaryOperator(ty TokenType) bool {
-	return ty == TT_NOT || ty == TT_INDIRECTION || ty == TT_SUB || ty == TT_ADD
+	return ty == TT_NOT || ty == TT_INDIRECTION || ty == TT_SUB || ty == TT_ADD || ty == TT_ANON_DEFINE
 }
 
 const functionPrecedence = 110
@@ -106,6 +106,8 @@ func getOperator(str string) Operator {
 		return Operator{TT_IF, str, RIGHT_TO_LEFT, 30, false}
 	case ":":
 		return Operator{TT_COLON, str, LEFT_TO_RIGHT, 20, false}
+	case "->":
+		return Operator{TT_ANON_DEFINE, str, LEFT_TO_RIGHT, 15, true}
 	case "=>":
 		return Operator{TT_DEFINE, str, LEFT_TO_RIGHT, 10, true}
 	case "|":
@@ -128,8 +130,6 @@ func getOperator(str string) Operator {
 		return Operator{TT_IN, str, false, 45, true}
 	case "not in":
 		return Operator{TT_NOT_IN, str, false, 45, true}
-	case "where":
-		return Operator{TT_WHERE, str, false, 0, false}
 	default:
 		return Operator{TT_UNKNOWN, str, false, 0, false}
 	}
@@ -137,7 +137,7 @@ func getOperator(str string) Operator {
 
 func getWordOperators() []string {
 	return []string{
-		"else", "for", "in", "where", "and", "if", "or", "not", "exit", "help", "quit", "example",
+		"else", "for", "in", "and", "if", "or", "not", "exit", "help", "quit", "example",
 	}
 }
 
@@ -205,6 +205,8 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_IF, "if", RIGHT_TO_LEFT, 30, false}
 	case TT_COLON:
 		return Operator{TT_COLON, ":", LEFT_TO_RIGHT, 20, false}
+	case TT_ANON_DEFINE:
+		return Operator{TT_ANON_DEFINE, "->", LEFT_TO_RIGHT, 15, true}
 	case TT_DEFINE:
 		return Operator{TT_DEFINE, "=>", LEFT_TO_RIGHT, 10, true}
 	case TT_TERMINATOR:
@@ -227,8 +229,6 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_NOT_IN, "not in", false, 45, true}
 	case TT_IN:
 		return Operator{TT_IN, "in", false, 45, true}
-	case TT_WHERE:
-		return Operator{TT_WHERE, "where", false, 0, false}
 	default:
 		return Operator{TT_UNKNOWN, "", false, 0, false}
 	}
@@ -298,5 +298,5 @@ const (
 	TT_MOD
 	TT_INDIRECTION
 	TT_DEFINE
-	TT_WHERE
+	TT_ANON_DEFINE
 )

@@ -15,6 +15,24 @@ type Expression interface {
 	Node
 }
 
+type AnonDefinition struct {
+	ids IdentifierList
+	exp Expression
+	pos Position
+}
+
+func (node AnonDefinition) getPosition() Position {
+	return node.pos
+}
+
+func (node AnonDefinition) toString() string {
+	return "->"
+}
+
+func (node AnonDefinition) getChildren() []Node {
+	return []Node{node.ids, node.exp}
+}
+
 type BinaryOperation struct {
 	left  Expression
 	right Expression
