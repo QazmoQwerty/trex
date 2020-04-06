@@ -29,7 +29,11 @@ digit           = '0'...'9';
 
 ### Whitespace
 
-Whitespace has a purpose in the language's syntax and as such will *not* be discarded.
+Whitespace has a purpose in the language's syntax and as such will *not* be discarded unless:
+
+* it is the first token in the current line
+* the token before it is whitespace or a terminator
+* the token after it is a terminator
 
 ###  Terminators
 
@@ -60,7 +64,7 @@ Identifiers name definitions. An identifier is a sequence of one or more letters
 
 ```
 name  
-_a12  
+_a12  /
 IdentA_13
 ```
 
@@ -69,10 +73,11 @@ IdentA_13
 The following character sequences are turned into operators:
 
 ```EBNF
-+   -   *   /   %       (   )
++   -   *   /   %   ..  (   )
 #   ,   :   =>  <<  **  {   }
-=   !=  <=  <   >   >=  [   ]
-not and or  if  for in  else
+=   !=  <   <=  >   >=  [   ]
+not or  for in  ->  .<. .<=.
+and in  if  else    .>. .>=.
 ```
 
 ### Literals
@@ -110,14 +115,14 @@ span multiple lines"
 
 ```EBNF
 Program     = ProgramLine { Terminator ProgramLine };
-ProgramLine = Statement | Expression;
+ProgramLine = Definition | Expression;
 ```
 
 A program consists of *definitions* and *expressions*. Each program gets an input value (called the *argument*) and outputs a *Value*.  
 
 Entering a top-level expression will cause the program to output it's value. Entering another top-level expression will cause the program to output a newline + the expression.
 
-Only a program which outputs only one value may output a non-string value.
+Only a program which outputs only exactly one value will output a non-string value.
 
 ```
 >>> a => 10 + 20
@@ -152,7 +157,7 @@ bbb
 ## Subscripts
 
 ```EBNF
-Subscript = [Expression] '[' [Expression] [':' [ Expression ] ] [':' Expression] ']';
+Subscript = [Expression] '[' [Expression] [':' [Expression]] [':' [Expression]] ']';
 ```
 
 Subscript expressions construct a substring or list from a string or a list.
@@ -225,10 +230,11 @@ ExpressionList = Expression { ',' ExpressionList };
 Lists are constructed using the ',' operator.
 
 ```
->>> 1, 2, 3, 4
-1, 2, 3, 4
->>> (1, 2, 3, 4)[0]
-1
+>>> list => (1, 2, 3), (3, 4)
+>>> list[1]
+3, 4
+>>> list[0][1]
+2
 ```
 
 ## Calls
@@ -236,7 +242,7 @@ Lists are constructed using the ',' operator.
 ```EBNF
 Call    = Callee [ Params ] [ WS Expression ];
 Callee  = Expression;
-Params  = '(' Expression ')';
+Params  = '(' Expression { ',' Expression }')';
 Arg     = Expression;
 ```
 
@@ -283,8 +289,8 @@ Programs can call themselves:
 The following are binary operators:
 
 ```
-+   -   *   /   =   !=  or  and
-<<  **  %   <   >   >=  <=
++   -   *   /   =   !=  ..  .<. .<=.   or    in
+<<  **  %   <   >   >=  <=  .>. .>=.   and   not in
 ```
 
 **Operator**    |   **Usage**
@@ -309,6 +315,8 @@ The following are binary operators:
 ..              |   range
 and             |   logical and
 or              |   logical or
+in              |   positive membership test
+not in          |   negative membership test
 
 The operands of the numeric operators, as well as the right operand of the string multiplication operator, MUST be convertible to a number.
 
@@ -344,8 +352,8 @@ aaaa
 ## Comprehensions
 
 ```EBNF
-Comprehension   = Expression ForClause { ForClause } ["where" Expression];
-ForClause       = "for" identifier "in" Expression;
+Comprehension   = Expression "for" ForClause { ',' ForClause } ["if" Expression];
+ForClause       = identifier "in" Expression;
 ```
 
 Comprehensions provide a concise way to create lists.
@@ -354,8 +362,29 @@ Comprehensions provide a concise way to create lists.
 >>> foo => 0123
 >>> i ** 2 for i in foo
 00, 11, 22, 33
->>> x*y for x in foo for y in foo where x*y != 0
+>>> x*y for x in foo, y in foo if x*y != 0
 1, 2, 3, 2, 4, 6, 3, 6, 9
+```
+
+## Anonymous Definitions
+
+Anonymous definitions are definitions which aren't bound to an identifier.
+
+```EBNF
+AnonDefinition = [IdentifierList] '->' Expression
+```
+
+```
+>>> (->len) 1234
+4
+>>> (a,b -> a*b)(3, 4)
+12
+>>> foo(f) => f(5)
+>>> foo(b -> b*2)
+10
+>>> a => 1, 2, 3, 4, 5
+>>> fold(l,r -> l+r) a
+15
 ```
 
 ## Built-in Definitions

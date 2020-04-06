@@ -76,8 +76,6 @@ func lex(str string, tokens *TokenQueue) {
 	idx := 0
 	var beforeLast Token
 	beforeLast.ty = TT_UNKNOWN
-	// var last Token
-	// last.ty = TT_UNKNOWN
 	for idx < len(runes) {
 		outputToken := true
 		tok := Token{CT_ILLEGAL, string(runes[idx]), Position{lineCount, pos, pos + 1}}

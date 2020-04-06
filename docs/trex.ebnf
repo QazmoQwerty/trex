@@ -1,3 +1,6 @@
+(* NOTE: ebnf file is not being kept up to date, see the language specification instead *)
+
+
 terminator = '|' | '\n';
 
 white_space = ? whitespace characters ? ;
