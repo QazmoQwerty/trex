@@ -189,27 +189,43 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		}
 		return ret
 	},
-	"fold":  foldRFunc,
-	"foldr": foldRFunc,
-	"foldl": foldLFunc,
-}
-
-func foldRFunc(input Value, params ListValue, pos Position) Value {
-	assertParamsNum(1, params, pos)
-	v := input.(ListValue)
-	if len(v.vals) == 1 {
-		return v.vals[0]
-	}
-	list := ListValue{[]Value{v.vals[0], foldRFunc(ListValue{v.vals[1:]}, params, pos)}}
-	return callDefinition(params.vals[0], input, list, pos)
-}
-
-func foldLFunc(input Value, params ListValue, pos Position) Value {
-	assertParamsNum(1, params, pos)
-	v := input.(ListValue)
-	if len(v.vals) == 1 {
-		return v.vals[0]
-	}
-	list := ListValue{[]Value{v.vals[len(v.vals)-1], foldLFunc(ListValue{v.vals[:len(v.vals)-1]}, params, pos)}}
-	return callDefinition(params.vals[len(v.vals)-1], input, list, pos)
+	"fold": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		v := input.(ListValue)
+		if len(v.vals) == 0 {
+			return NullValue{}
+		}
+		ret := v.vals[len(v.vals)-1]
+		for i := len(v.vals) - 2; i >= 0; i-- {
+			list := ListValue{[]Value{v.vals[i], ret}}
+			ret = callDefinition(params.vals[0], input, list, pos)
+		}
+		return ret
+	},
+	"foldr": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		v := input.(ListValue)
+		if len(v.vals) == 0 {
+			return NullValue{}
+		}
+		ret := v.vals[len(v.vals)-1]
+		for i := len(v.vals) - 2; i >= 0; i-- {
+			list := ListValue{[]Value{v.vals[i], ret}}
+			ret = callDefinition(params.vals[0], input, list, pos)
+		}
+		return ret
+	},
+	"foldl": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		v := input.(ListValue)
+		if len(v.vals) == 0 {
+			return NullValue{}
+		}
+		ret := v.vals[0]
+		for i := 1; i < len(v.vals); i++ {
+			list := ListValue{[]Value{ret, v.vals[i]}}
+			ret = callDefinition(params.vals[0], input, list, pos)
+		}
+		return ret
+	},
 }
