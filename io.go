@@ -97,7 +97,11 @@ func printError(err error) {
 			print("    ")
 		} else {
 			whiteBold("At line %d\n", e.pos.line)
-			print("    " + allUserInput[e.pos.line-1] + "\n    ")
+			if e.pos.line-1 >= len(allUserInput) {
+				println()
+			} else {
+				print("    " + allUserInput[e.pos.line-1] + "\n    ")
+			}
 		}
 		for i := 0; i < e.pos.start; i++ {
 			if allUserInput[e.pos.line-1][i] == '\t' {

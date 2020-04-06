@@ -96,6 +96,7 @@ func lex(str string, tokens *TokenQueue) {
 			tok.ty = TT_TERMINATOR
 			lastTy := tokens.peekBack().ty
 			if lastTy == TT_WHITESPACE {
+				tokens.popBack()
 				lastTy = beforeLast.ty
 			}
 			switch lastTy {
