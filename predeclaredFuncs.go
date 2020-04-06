@@ -180,6 +180,15 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		r := regexp.MustCompile(params.vals[0].String())
 		return createBoolValue(r.MatchString(input.String()))
 	},
+	"join": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		ret := StringValue{}
+		vals := input.(ListValue).vals
+		for _, i := range vals {
+			ret.val += i.String()
+		}
+		return ret
+	},
 	"fold":  foldRFunc,
 	"foldr": foldRFunc,
 	"foldl": foldLFunc,
