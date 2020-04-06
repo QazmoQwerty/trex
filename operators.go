@@ -101,7 +101,7 @@ func getOperator(str string) Operator {
 	case "or":
 		return Operator{TT_OR, str, LEFT_TO_RIGHT, 50, true}
 	case ",":
-		return Operator{TT_COMMA, str, LEFT_TO_RIGHT, 40, false}
+		return Operator{TT_COMMA, str, RIGHT_TO_LEFT, 40, false}
 	case "if":
 		return Operator{TT_IF, str, RIGHT_TO_LEFT, 30, false}
 	case ":":
@@ -126,6 +126,8 @@ func getOperator(str string) Operator {
 		return Operator{TT_FOR, str, false, 35, false}
 	case "in":
 		return Operator{TT_IN, str, false, 45, true}
+	case "not in":
+		return Operator{TT_NOT_IN, str, false, 45, true}
 	case "where":
 		return Operator{TT_WHERE, str, false, 0, false}
 	default:
@@ -198,7 +200,7 @@ func getOperatorByType(op TokenType) Operator {
 	case TT_OR:
 		return Operator{TT_OR, "or", LEFT_TO_RIGHT, 50, true}
 	case TT_COMMA:
-		return Operator{TT_COMMA, ",", LEFT_TO_RIGHT, 40, false}
+		return Operator{TT_COMMA, ",", RIGHT_TO_LEFT, 40, false}
 	case TT_IF:
 		return Operator{TT_IF, "if", RIGHT_TO_LEFT, 30, false}
 	case TT_COLON:
@@ -221,6 +223,8 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_ELSE, "else", false, 0, false}
 	case TT_FOR:
 		return Operator{TT_FOR, "for", false, 32, false}
+	case TT_NOT_IN:
+		return Operator{TT_NOT_IN, "not in", false, 45, true}
 	case TT_IN:
 		return Operator{TT_IN, "in", false, 45, true}
 	case TT_WHERE:
@@ -275,6 +279,7 @@ const (
 	TT_ELSE
 	TT_FOR
 	TT_IN
+	TT_NOT_IN
 	TT_PARENTHESIS_OPEN
 	TT_PARENTHESIS_CLOSE
 	TT_CURLY_BRACES_OPEN

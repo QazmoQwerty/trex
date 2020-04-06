@@ -347,24 +347,52 @@ func atoi(str string, pos Position) int {
 func (this BinaryOperation) interpret(input Value) Value {
 	left := this.left.interpret(input)
 	right := this.right.interpret(input)
-	leftStr := left.String()
-	rightStr := right.String()
 	leftPos := this.left.getPosition()
 	rightPos := this.right.getPosition()
 
 	switch this.op.ty {
+	case TT_IN:
+		switch r := right.(type) {
+		case ListValue:
+			subStr := left.String()
+			for _, i := range r.vals {
+				if strings.Contains(i.String(), subStr) {
+					return createBoolValue(true)
+				}
+			}
+			return createBoolValue(false)
+		case StringValue:
+			return createBoolValue(strings.Contains(right.String(), left.String()))
+		default:
+			return createBoolValue(false)
+		}
+	case TT_NOT_IN:
+		switch r := right.(type) {
+		case ListValue:
+			subStr := left.String()
+			for _, i := range r.vals {
+				if strings.Contains(i.String(), subStr) {
+					return createBoolValue(false)
+				}
+			}
+			return createBoolValue(true)
+		case StringValue:
+			return createBoolValue(!strings.Contains(right.String(), left.String()))
+		default:
+			return createBoolValue(true)
+		}
 	case TT_STRING_ADD:
-		return StringValue{leftStr + rightStr}
+		return StringValue{left.String() + right.String()}
 	case TT_STRING_MUL:
-		return StringValue{strings.Repeat(leftStr, atoi(rightStr, this.right.getPosition()))}
+		return StringValue{strings.Repeat(left.String(), atoi(right.String(), this.right.getPosition()))}
 	case TT_EQUAL:
-		return createBoolValue(leftStr == rightStr)
+		return createBoolValue(left.String() == right.String())
 	case TT_NOT_EQUAL:
-		return createBoolValue(leftStr != rightStr)
+		return createBoolValue(left.String() != right.String())
 	case TT_AND:
-		return createBoolValue(leftStr != "" && rightStr != "")
+		return createBoolValue(left.String() != "" && right.String() != "")
 	case TT_OR:
-		return createBoolValue(leftStr != "" || rightStr != "")
+		return createBoolValue(left.String() != "" || right.String() != "")
 	case TT_ADD:
 		switch l := left.(type) {
 		case ListValue:
@@ -404,39 +432,39 @@ func (this BinaryOperation) interpret(input Value) Value {
 		case NullValue:
 			return left
 		}
-		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) + atoi(rightStr, rightPos))}
+		return StringValue{strconv.Itoa(atoi(left.String(), leftPos) + atoi(right.String(), rightPos))}
 	case TT_SUB:
-		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) - atoi(rightStr, rightPos))}
+		return StringValue{strconv.Itoa(atoi(left.String(), leftPos) - atoi(right.String(), rightPos))}
 	case TT_DIV:
-		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) / atoi(rightStr, rightPos))}
+		return StringValue{strconv.Itoa(atoi(left.String(), leftPos) / atoi(right.String(), rightPos))}
 	case TT_MUL:
-		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) * atoi(rightStr, rightPos))}
+		return StringValue{strconv.Itoa(atoi(left.String(), leftPos) * atoi(right.String(), rightPos))}
 	case TT_MOD:
-		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) % atoi(rightStr, rightPos))}
+		return StringValue{strconv.Itoa(atoi(left.String(), leftPos) % atoi(right.String(), rightPos))}
 	case TT_RANGE:
-		low := atoi(leftStr, leftPos)
-		high := atoi(rightStr, rightPos)
+		low := atoi(left.String(), leftPos)
+		high := atoi(right.String(), rightPos)
 		list := ListValue{}
 		for i := low; i < high; i++ {
 			list.vals = append(list.vals, StringValue{strconv.Itoa(i)})
 		}
 		return list
 	case TT_SMALLER:
-		return createBoolValue(atoi(leftStr, leftPos) < atoi(rightStr, rightPos))
+		return createBoolValue(atoi(left.String(), leftPos) < atoi(right.String(), rightPos))
 	case TT_SMALLER_EQUAL:
-		return createBoolValue(atoi(leftStr, leftPos) <= atoi(rightStr, rightPos))
+		return createBoolValue(atoi(left.String(), leftPos) <= atoi(right.String(), rightPos))
 	case TT_GREATER:
-		return createBoolValue(atoi(leftStr, leftPos) > atoi(rightStr, rightPos))
+		return createBoolValue(atoi(left.String(), leftPos) > atoi(right.String(), rightPos))
 	case TT_GREATER_EQUAL:
-		return createBoolValue(atoi(leftStr, leftPos) >= atoi(rightStr, rightPos))
+		return createBoolValue(atoi(left.String(), leftPos) >= atoi(right.String(), rightPos))
 	case TT_LEXICAL_SMALLER:
-		return createBoolValue(strings.Compare(leftStr, rightStr) < 0)
+		return createBoolValue(strings.Compare(left.String(), right.String()) < 0)
 	case TT_LEXICAL_SMALLER_EQUAL:
-		return createBoolValue(strings.Compare(leftStr, rightStr) <= 0)
+		return createBoolValue(strings.Compare(left.String(), right.String()) <= 0)
 	case TT_LEXICAL_GREATER:
-		return createBoolValue(strings.Compare(leftStr, rightStr) > 0)
+		return createBoolValue(strings.Compare(left.String(), right.String()) > 0)
 	case TT_LEXICAL_GREATER_EQUAL:
-		return createBoolValue(strings.Compare(leftStr, rightStr) >= 0)
+		return createBoolValue(strings.Compare(left.String(), right.String()) >= 0)
 	default:
 		panic(myErr{"unimplemented binary operator \"" + this.op.str + "\"", this.pos, ERR_INTERPRETER})
 	}

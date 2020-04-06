@@ -16,6 +16,7 @@ const gitlabLink = "gitlab.com/QazmoQwerty/trex"
 var globals struct {
 	liner   *liner.State
 	showAst bool
+	showLex bool
 }
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 	redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
 
 	globals.showAst = false
+	globals.showLex = false
 
 	for _, arg := range args {
 		if arg[0] == '-' {
@@ -42,6 +44,8 @@ func main() {
 				ioExit()
 			case "-ast":
 				globals.showAst = true
+			case "-lex":
+				globals.showLex = true
 			default:
 				redBold("Error: ")
 				println("Unknown flag \"" + arg + "\".")
@@ -89,6 +93,11 @@ func startInterpreter(input string) {
 	for true {
 		tokens := TokenQueue{}
 		lexLine(&tokens, true)
+		if globals.showLex {
+			for _, tok := range tokens.tokens {
+				showToken(tok)
+			}
+		}
 		ast := parseProgram(&tokens, TT_EOF)
 		if globals.showAst {
 			println(printAst(ast).Print())

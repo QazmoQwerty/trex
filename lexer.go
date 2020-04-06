@@ -76,8 +76,8 @@ func lex(str string, tokens *TokenQueue) {
 	idx := 0
 	var beforeLast Token
 	beforeLast.ty = TT_UNKNOWN
-	var last Token
-	last.ty = TT_UNKNOWN
+	// var last Token
+	// last.ty = TT_UNKNOWN
 	for idx < len(runes) {
 		outputToken := true
 		tok := Token{CT_ILLEGAL, string(runes[idx]), Position{lineCount, pos, pos + 1}}
@@ -87,14 +87,14 @@ func lex(str string, tokens *TokenQueue) {
 		switch runeType(curr) {
 		case CT_WHITESPACE:
 			tok.ty = TT_WHITESPACE
-			if last.ty == TT_UNKNOWN || last.ty == TT_TERMINATOR || last.ty == TT_WHITESPACE {
+			if tokens.peekBack().ty == TT_UNKNOWN || tokens.peekBack().ty == TT_TERMINATOR || tokens.peekBack().ty == TT_WHITESPACE {
 				outputToken = false
 			}
 		case CT_NEWLINE:
 			lineCount++
 			pos = 0
 			tok.ty = TT_TERMINATOR
-			lastTy := last.ty
+			lastTy := tokens.peekBack().ty
 			if lastTy == TT_WHITESPACE {
 				lastTy = beforeLast.ty
 			}
@@ -125,6 +125,12 @@ func lex(str string, tokens *TokenQueue) {
 				tok.ty = TT_LITERAL
 			} else if isOperator(tok.data) {
 				tok.ty = opType(tok.data)
+				if tok.ty == TT_IN && tokens.peekBack().ty == TT_WHITESPACE && tokens.peekBeforeBack().ty == TT_NOT {
+					tokens.popBack()
+					tok = tokens.popBack()
+					tok.ty = TT_NOT_IN
+					tok.data = "not in"
+				}
 			} else {
 				tok.ty = TT_IDENTIFIER
 			}
@@ -210,8 +216,8 @@ func lex(str string, tokens *TokenQueue) {
 		}
 		if outputToken {
 			tokens.pushBack(tok)
-			beforeLast = last
-			last = tok
+			beforeLast = tokens.peekBack()
+			// last = tok
 		}
 	}
 }
