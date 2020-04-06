@@ -106,8 +106,8 @@ func parseExpression(tokens *TokenQueue, prec byte) Expression {
 	panic(myErr{"Expected an expression.", pos, ERR_PARSER})
 }
 
-func parseIdentifier(tokens *TokenQueue) Identifier {
-	return convertToIdentifier(parse(tokens, 0))
+func parseIdentifier(tokens *TokenQueue, prec byte) Identifier {
+	return convertToIdentifier(parse(tokens, prec))
 }
 
 func parseIdentifierList(tokens *TokenQueue) IdentifierList {
@@ -252,7 +252,7 @@ func nud(tokens *TokenQueue) Expression {
 		tokens.next()
 		op := getOperator(token.data)
 		if op.ty == TT_INDIRECTION {
-			return UnaryOperation{parseIdentifier(tokens), op, token.pos}
+			return UnaryOperation{parseIdentifier(tokens, leftPrecedenceByTy(TT_INDIRECTION)), op, token.pos}
 		}
 		return UnaryOperation{parseExpression(tokens, leftPrecedence(token)), op, token.pos}
 	}
