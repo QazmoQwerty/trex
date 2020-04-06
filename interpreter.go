@@ -3,6 +3,7 @@ package main
 import (
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 type Value interface {
@@ -134,7 +135,7 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		var min Value
 		var minVal int
 		for _, i := range list.vals {
-			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String())
+			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String(), pos)
 			if min == nil || currVal < minVal {
 				min = i
 				minVal = currVal
@@ -148,7 +149,7 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		var max Value
 		var maxVal int
 		for _, i := range list.vals {
-			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String())
+			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String(), pos)
 			if max == nil || currVal > maxVal {
 				max = i
 				maxVal = currVal
@@ -196,6 +197,33 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	"toLower": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
 		return StringValue{strings.ToLower(input.String())}
+	},
+	"isLetter": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsLetter([]rune(input.String())[0]))
+	},
+	"isUpper": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsUpper([]rune(input.String())[0]))
+	},
+	"isLower": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsLower([]rune(input.String())[0]))
+	},
+	"isDigit": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsDigit([]rune(input.String())[0]))
+	},
+	"ascii": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		vals := ListValue{}
+		for _, i := range []rune(input.String()) {
+			vals.vals = append(vals.vals, StringValue{strconv.Itoa(int(i))})
+		}
+		if len(vals.vals) == 1 {
+			return vals.vals[0]
+		}
+		return vals
 	},
 }
 
@@ -287,10 +315,14 @@ func createBoolValue(b bool) StringValue {
 	return StringValue{""}
 }
 
-func atoi(str string) int {
+func atoi(str string, pos Position) int {
 	ret, err := strconv.Atoi(str)
 	if err != nil {
-		panic(err)
+		if len(str) > 30 {
+			panic(myErr{`"` + str[:30] + `"... cannot be converted to a number (full value was not shown due to length)`, pos, ERR_INTERPRETER})
+		} else {
+			panic(myErr{`"` + str + `" cannot be converted to a number`, pos, ERR_INTERPRETER})
+		}
 	}
 	return ret
 }
@@ -300,12 +332,14 @@ func (this BinaryOperation) interpret(input Value) Value {
 	right := this.right.interpret(input)
 	leftStr := left.String()
 	rightStr := right.String()
+	leftPos := this.left.getPosition()
+	rightPos := this.right.getPosition()
 
 	switch this.op.ty {
 	case TT_STRING_ADD:
 		return StringValue{leftStr + rightStr}
 	case TT_STRING_MUL:
-		return StringValue{strings.Repeat(leftStr, atoi(rightStr))}
+		return StringValue{strings.Repeat(leftStr, atoi(rightStr, this.right.getPosition()))}
 	case TT_EQUAL:
 		return createBoolValue(leftStr == rightStr)
 	case TT_NOT_EQUAL:
@@ -353,31 +387,31 @@ func (this BinaryOperation) interpret(input Value) Value {
 		case NullValue:
 			return left
 		}
-		return StringValue{strconv.Itoa(atoi(leftStr) + atoi(rightStr))}
+		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) + atoi(rightStr, rightPos))}
 	case TT_SUB:
-		return StringValue{strconv.Itoa(atoi(leftStr) - atoi(rightStr))}
+		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) - atoi(rightStr, rightPos))}
 	case TT_DIV:
-		return StringValue{strconv.Itoa(atoi(leftStr) / atoi(rightStr))}
+		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) / atoi(rightStr, rightPos))}
 	case TT_MUL:
-		return StringValue{strconv.Itoa(atoi(leftStr) * atoi(rightStr))}
+		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) * atoi(rightStr, rightPos))}
 	case TT_MOD:
-		return StringValue{strconv.Itoa(atoi(leftStr) % atoi(rightStr))}
+		return StringValue{strconv.Itoa(atoi(leftStr, leftPos) % atoi(rightStr, rightPos))}
 	case TT_RANGE:
-		low := atoi(leftStr)
-		high := atoi(rightStr)
+		low := atoi(leftStr, leftPos)
+		high := atoi(rightStr, rightPos)
 		list := ListValue{}
 		for i := low; i < high; i++ {
 			list.vals = append(list.vals, StringValue{strconv.Itoa(i)})
 		}
 		return list
 	case TT_SMALLER:
-		return createBoolValue(atoi(leftStr) < atoi(rightStr))
+		return createBoolValue(atoi(leftStr, leftPos) < atoi(rightStr, rightPos))
 	case TT_SMALLER_EQUAL:
-		return createBoolValue(atoi(leftStr) <= atoi(rightStr))
+		return createBoolValue(atoi(leftStr, leftPos) <= atoi(rightStr, rightPos))
 	case TT_GREATER:
-		return createBoolValue(atoi(leftStr) > atoi(rightStr))
+		return createBoolValue(atoi(leftStr, leftPos) > atoi(rightStr, rightPos))
 	case TT_GREATER_EQUAL:
-		return createBoolValue(atoi(leftStr) >= atoi(rightStr))
+		return createBoolValue(atoi(leftStr, leftPos) >= atoi(rightStr, rightPos))
 	case TT_LEXICAL_SMALLER:
 		return createBoolValue(strings.Compare(leftStr, rightStr) < 0)
 	case TT_LEXICAL_SMALLER_EQUAL:
@@ -406,7 +440,7 @@ func (this UnaryOperation) interpret(input Value) Value {
 	case TT_ADD:
 		return StringValue{str}
 	case TT_SUB:
-		return StringValue{strconv.Itoa(-atoi(str))}
+		return StringValue{strconv.Itoa(-atoi(str, this.expression.getPosition()))}
 	default:
 		panic(myErr{"unimplemented unary operator \"" + this.op.str + "\"", this.pos, ERR_INTERPRETER})
 	}
@@ -529,7 +563,7 @@ func (this Subscript) interpret(input Value) Value {
 	vals := valToList(val, input)
 
 	if this.idx2 == nil && this.idx3 == nil {
-		idx := atoi(this.idx1.interpret(input).String())
+		idx := atoi(this.idx1.interpret(input).String(), this.idx1.getPosition())
 		if idx < 0 {
 			idx += len(vals)
 		}
@@ -540,13 +574,13 @@ func (this Subscript) interpret(input Value) Value {
 		highStr := this.idx2.interpret(input).String()
 		low, high := 0, len(vals)
 		if lowStr != "" {
-			low = atoi(lowStr)
+			low = atoi(lowStr, this.idx1.getPosition())
 			if low < 0 {
 				low += len(vals)
 			}
 		}
 		if highStr != "" {
-			high = atoi(highStr)
+			high = atoi(highStr, this.idx2.getPosition())
 			if high < 0 {
 				high += len(vals)
 			}

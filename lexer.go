@@ -203,7 +203,7 @@ func lex(str string, tokens *TokenQueue) {
 			idx++
 			break
 		case CT_ILLEGAL:
-			break
+			panic(myErr{`unknown character "` + string(curr) + `"`, tok.pos, ERR_LEXER})
 		}
 		if pos != 0 {
 			tok.pos.end = pos

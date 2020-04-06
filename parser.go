@@ -370,5 +370,5 @@ func led(tokens *TokenQueue, node Node, ateWS bool) Node {
 	if !ateWS {
 		return FunctionCall{convertToCallee(left), convertToExpressionList(right), nil, left.getPosition()}
 	}
-	return FunctionCall{convertToCallee(left), convertToExpressionList(right), parseExpression(tokens, functionPrecedence), left.getPosition()}
+	return FunctionCall{convertToCallee(left), convertToExpressionList(right), parseOptionalExpression(tokens, functionPrecedence), left.getPosition()}
 }
