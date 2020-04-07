@@ -2,6 +2,7 @@ package main
 
 import (
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -227,5 +228,34 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 			ret = callDefinition(params.vals[0], input, list, pos)
 		}
 		return ret
+	},
+	"sort": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		v := input.(ListValue)
+		sort.SliceStable(v.vals, func(i, j int) bool {
+			a := atoi(callDefinition(params.vals[0], v.vals[i], ListValue{}, pos).String(), pos)
+			b := atoi(callDefinition(params.vals[0], v.vals[j], ListValue{}, pos).String(), pos)
+			return a < b
+		})
+		return input
+	},
+	"reverse": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		switch v := input.(type) {
+		case ListValue:
+			for i := len(v.vals)/2 - 1; i >= 0; i-- {
+				opp := len(v.vals) - 1 - i
+				v.vals[i], v.vals[opp] = v.vals[opp], v.vals[i]
+			}
+			return v
+		case StringValue:
+			r := []rune(v.val)
+			for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
+				r[i], r[j] = r[j], r[i]
+			}
+			return StringValue{string(r)}
+		default:
+			return input
+		}
 	},
 }
