@@ -10,7 +10,6 @@ import (
 	"github.com/peterh/liner"
 )
 
-const version = "0.3.1"
 const gitlabLink = "gitlab.com/QazmoQwerty/trex"
 
 var globals struct {
@@ -39,13 +38,17 @@ func main() {
 		if arg[0] == '-' {
 			switch arg {
 			case "-h":
-				println("Usage: trex <input> <files> [flags]")
-				println("    ")
-				println("    input: Either a file text inside square brackets []")
-				println("    files: Files to be run. If no files are specified trex will run in interpreter mode.")
-				println("    flags: ")
-				println("        -h (show this message)")
-				println("        -i (run interpreter after code files have ben executed)")
+				println(`Usage: trex <input> <files> [flags]
+	input: Either a file text inside square brackets []
+	files: Files to be run. If no files are specified trex will run in interpreter mode.
+	flags: 
+		-h (show this message)
+		-i (run interpreter after code files have ben executed)
+		-v (show version)
+
+	debug flags:
+		-lex (show output of the lexer)
+		-ast (show output of the parser)`)
 				ioExit()
 			case "-ast":
 				globals.showAst = true
@@ -53,6 +56,9 @@ func main() {
 				globals.showLex = true
 			case "-i":
 				globals.forceInterpret = true
+			case "-v":
+				fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
+				ioExit()
 			default:
 				redBold("Error: ")
 				println("Unknown flag \"" + arg + "\".")
