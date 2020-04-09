@@ -89,8 +89,11 @@ func callDefinition(callee Value, input Value, params ListValue, pos Position) V
 	}
 }
 
-var definitions = []map[string]Definition{map[string]Definition{}}
-var values = []map[string]Value{map[string]Value{}}
+// var definitions = []map[string]Definition{map[string]Definition{}}
+// var values = []map[string]Value{map[string]Value{}}
+
+var definitions = []map[string]Definition{{}}
+var values = []map[string]Value{{}}
 
 func (this Program) interpret(input Value) Value {
 	enterBlock()
@@ -399,7 +402,6 @@ func (this ExpressionList) interpret(input Value) Value {
 
 func (this FunctionCall) interpret(input Value) Value {
 	val := this.callee.interpret(input)
-
 	switch def := val.(type) {
 	default:
 		if this.arg == nil && len(this.params.expressions) == 0 {

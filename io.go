@@ -111,10 +111,11 @@ func printError(err error) {
 		} else {
 			if e.pos.line == lineCount-1 {
 				print("    ")
+				line = allUserInput[e.pos.line-1]
 			} else {
 				whiteBold("At line %d\n", e.pos.line)
 				if e.pos.line-1 >= len(allUserInput) {
-					println()
+					println("an internal error occurred")
 				} else {
 					line = allUserInput[e.pos.line-1]
 					print("    " + line + "\n    ")
