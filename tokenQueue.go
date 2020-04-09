@@ -18,6 +18,12 @@ func (manager *TokenQueue) pushFront(token Token) {
 	manager.tokens[0] = token
 }
 
+func (manager *TokenQueue) pushBackEOF() {
+	backPos := manager.peekBack().pos
+	backPos.start, backPos.end = backPos.end, backPos.end+1
+	manager.pushBack(Token{TT_EOF, "", backPos})
+}
+
 func (manager *TokenQueue) pushBack(token Token) {
 	manager.tokens = append(manager.tokens, token)
 }

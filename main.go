@@ -74,24 +74,25 @@ func main() {
 		}
 	}
 
-	if input == "" {
-		redBold("Error: ")
-		println("missing input string")
-		println("Try \"trex -h\" for more information.")
-		ioExit()
-		return
-	}
-
-	if input[0] == '[' && input[len(input)-1] == ']' {
-		input = input[1 : len(input)-1]
-	} else {
-		content, err := ioutil.ReadFile(input)
-		if err != nil {
-			redBold("Error: ")
-			println("could not open file \"" + input + "\"")
-			ioExit()
+	// if input == "" {
+	// 	redBold("Error: ")
+	// 	println("missing input string")
+	// 	println("Try \"trex -h\" for more information.")
+	// 	ioExit()
+	// 	return
+	// }
+	if input != "" {
+		if input[0] == '[' && input[len(input)-1] == ']' {
+			input = input[1 : len(input)-1]
+		} else {
+			content, err := ioutil.ReadFile(input)
+			if err != nil {
+				redBold("Error: ")
+				println("could not open file \"" + input + "\"")
+				ioExit()
+			}
+			input = string(content)
 		}
-		input = string(content)
 	}
 
 	if len(fileNames) == 0 {

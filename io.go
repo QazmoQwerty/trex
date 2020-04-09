@@ -14,7 +14,7 @@ import (
 	"github.com/peterh/liner"
 )
 
-var allUserInput = []string{} // TODO - read history from liner
+var allUserInput = []string{}
 var lastLine = ""
 
 func ioSetup() {
@@ -109,20 +109,20 @@ func printError(err error) {
 				print(line)
 			}
 		} else {
+			if e.pos.line <= 0 || len(allUserInput) < e.pos.line {
+				println("an internal error occurred...")
+				return
+			}
 			if e.pos.line == lineCount-1 {
 				print("    ")
 				line = allUserInput[e.pos.line-1]
 			} else {
 				whiteBold("At line %d\n", e.pos.line)
-				if e.pos.line-1 >= len(allUserInput) {
-					println("an internal error occurred")
-				} else {
-					line = allUserInput[e.pos.line-1]
-					print("    " + line + "\n    ")
-				}
+				line = allUserInput[e.pos.line-1]
+				print("    " + line + "\n    ")
 			}
 		}
-		for i := 0; i < e.pos.start; i++ {
+		for i := 0; i < e.pos.start && i < len(line); i++ {
 			if line[i] == '\t' {
 				print("\t")
 			} else {

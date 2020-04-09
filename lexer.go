@@ -19,7 +19,7 @@ func lexLine(tokens *TokenQueue, isFirstLine bool) {
 				for tokens.size() > 0 {
 					tokens.next()
 				}
-				tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
+				tokens.pushBackEOF()
 			}
 		}()
 	} else {
@@ -27,7 +27,8 @@ func lexLine(tokens *TokenQueue, isFirstLine bool) {
 	}
 	line := readLine(prompt)
 	if line == "\n" {
-		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
+		lineCount++
+		tokens.pushBackEOF()
 		return
 	}
 	if line == "exit\n" || line == "quit\n" {
@@ -35,11 +36,13 @@ func lexLine(tokens *TokenQueue, isFirstLine bool) {
 		return
 	} else if line == "help\n" || strings.HasPrefix(line, "help ") {
 		showHelp(line)
-		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
+		lineCount++
+		tokens.pushBackEOF()
 		return
 	} else if line == "example\n" || strings.HasPrefix(line, "example ") {
 		showExample(line)
-		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
+		lineCount++
+		tokens.pushBackEOF()
 		return
 	}
 	switch line[len(line)-2] {
@@ -59,7 +62,7 @@ func lexLine(tokens *TokenQueue, isFirstLine bool) {
 		lex(line, tokens)
 	}
 	if isFirstLine {
-		tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
+		tokens.pushBackEOF()
 	}
 }
 
