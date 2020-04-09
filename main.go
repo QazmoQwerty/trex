@@ -28,7 +28,6 @@ func main() {
 	input := ""
 	fileNames := []string{}
 	redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
-
 	globals.codeFile = ""
 	globals.showAst = false
 	globals.showLex = false

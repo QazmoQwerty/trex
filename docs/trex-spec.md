@@ -3,17 +3,17 @@
 ## Notation
 The syntax is specified using [Extended Backus-Naur Form](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form) (EBNF):
 
-**Usage**       | **Notation**
-------------    | -------------
-definition      |   =
-concatenation   |   ,
-termination     |   ;
-optional        |   [ ... ]
-repetition      |   { ... }
-grouping        |   ( ... )
-terminal string |   " ... "
-comment         |   (\* ... \*)
-special sequence|   ? ... ?
+|**Usage**       | **Notation**|
+|------------    | -------------|
+|definition      |   =|
+|concatenation   |   ,|
+|termination     |   ;|
+|optional        |   [ ... ]|
+|repetition      |   { ... }|
+|grouping        |   ( ... )|
+|terminal string |   " ... "|
+|comment         |   (\* ... \*)|
+|special sequence|   ? ... ?|
 
 
 ## Lexical Elements
@@ -64,7 +64,7 @@ Identifiers name definitions. An identifier is a sequence of one or more letters
 
 ```
 name  
-_a12  /
+_a12
 IdentA_13
 ```
 
@@ -76,8 +76,8 @@ The following character sequences are turned into operators:
 +   -   *   /   %   ..  (   )
 #   ,   :   =>  <<  **  {   }
 =   !=  <   <=  >   >=  [   ]
-not or  for in  ->  .<. .<=.
-and in  if  else    .>. .>=.
+not for or	in  ->  .<. .<=.
+and   if    else    .>. .>=.
 ```
 
 ### Literals
@@ -210,7 +210,7 @@ The third index specifies to only treat the value every *n* values. If the third
 97531
 ```
 
-Any of the 3 indices may be ommitted. A missing index is equivalent to the value "". A missing first index defaults to 0, a missing second index defaults to the length of the value, and a missing third index defaults to 1.
+Any of the 3 indices may be omitted. A missing index is equivalent to the value "". A missing first index defaults to 0, a missing second index defaults to the length of the value, and a missing third index defaults to 1.
 
 A negative index (as one of the first two indices) counts from the back of the string/list:
 
@@ -293,34 +293,34 @@ The following are binary operators:
 <<  **  %   <   >   >=  <=  .>. .>=.   and   not in
 ```
 
-**Operator**    |   **Usage**
---------------  |   -------
-\+              |   numeric addition
-\-              |   numeric subtraction
-\*              |   numeric multiplication
-/               |   numeric division
-%               |   numeric remainder
-<<              |   string addition
-\*\*            |   string multiplication
-<               |   numeric smaller than
-<=              |   numeric smaller or equal to 
-\>              |   numeric greater than
-\>=             |   numeric greater or equal to
-.<.             |   lexical smaller than
-.<=.            |   lexical smaller or equal to 
-.\>.            |   lexical greater than
-.\>=.           |   lexical greater or equal to
-=               |   equal
-!=              |   not equal
-..              |   range
-and             |   logical and
-or              |   logical or
-in              |   positive membership test
-not in          |   negative membership test
+|**Operator**    |   **Usage**|
+|--------------  |   -------|
+|\+              |   numeric addition|
+|\-              |   numeric subtraction|
+|\*              |   numeric multiplication|
+|/               |   numeric division|
+|%               |   numeric remainder|
+|<<              |   string addition|
+|\*\*            |   string multiplication|
+|<               |   numeric smaller than|
+|<=              |   numeric smaller or equal to |
+|\>              |   numeric greater than|
+|\>=             |   numeric greater or equal to|
+|.<.             |   lexical smaller than|
+|.<=.            |   lexical smaller or equal to |
+|.\>.            |   lexical greater than|
+|.\>=.           |   lexical greater or equal to|
+|=               |   equal|
+|!=              |   not equal|
+|..              |   range|
+|and             |   logical and|
+|or              |   logical or|
+|in              |   positive membership test|
+|not in          |   negative membership test|
 
 The operands of the numeric operators, as well as the right operand of the string multiplication operator, MUST be convertible to a number.
 
-The comparision operators will compare the strings based on lexical order.
+The comparison operators will compare the strings based on lexical order.
 
 NOTE: all binary operations only accept strings as their operands.
 
@@ -332,12 +332,12 @@ The following are unary operators:
 +   -   #   not
 ```
 
-**Operator**    |   **Usage**               
---------------  |   ----------------------  
-not             |   logical not        
-\#              |   definition reference (accepts identifiers)     
-\+              |   numeric unary +  
-\-              |   numeric unary -
+|**Operator**    |   **Usage**               |
+|--------------  |   ----------------------  |
+|not             |   logical not        |
+|\#              |   definition reference (accepts identifiers)     |
+|\+              |   numeric unary +  |
+|\-              |   numeric unary -|
 
 The '#' operator is used to pass definitions without calling them.
 

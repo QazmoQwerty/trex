@@ -40,3 +40,4 @@ primes(n) => i for i in 0..n if isPrime(i)
 // (fold(a,b -> a+b) chars 12345) = 15
 fold(f) => f([0], fold(#f) [1:]) if len > 1 else [0] if len > 0 else ()
 ```
+
