@@ -172,20 +172,9 @@ func atoi(str string, pos Position) int {
 
 func (this BinaryOperation) interpret(input Value) Value {
 	left := this.left.interpret(input)
+	right := this.right.interpret(input)
 	leftPos := this.left.getPosition()
 	rightPos := this.right.getPosition()
-
-	if this.op.ty == TT_WHERE {
-		ret := ListValue{}
-		for _, val := range left.(ListValue).vals {
-			if this.right.interpret(val).String() != "" {
-				ret.vals = append(ret.vals, val)
-			}
-		}
-		return ret
-	}
-
-	right := this.right.interpret(input)
 
 	switch this.op.ty {
 	case TT_IN:
