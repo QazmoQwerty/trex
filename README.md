@@ -31,8 +31,8 @@ countChars => ch, numOccurs(ch) for ch in unique chars
 
 ```
 // primes(n) returns all prime numbers from 0 to n
-isPrime(n) => count (i for i in 2..n if n % i = 0) = 0
-primes(n) => i for i in 0..n if isPrime(i)
+isPrime(n) => count (i from 2..n if n % i = 0) = 0
+primes(n) => i from 0..n if isPrime(i)
 ```
 
 

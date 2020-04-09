@@ -96,12 +96,20 @@ func getOperator(str string) Operator {
 		return Operator{TT_EQUAL, str, LEFT_TO_RIGHT, 70, true}
 	case "!=":
 		return Operator{TT_NOT_EQUAL, str, LEFT_TO_RIGHT, 70, true}
+	case "in":
+		return Operator{TT_IN, str, false, 70, true}
+	case "not in":
+		return Operator{TT_NOT_IN, str, false, 70, true}
 	case "and":
 		return Operator{TT_AND, str, LEFT_TO_RIGHT, 60, true}
 	case "or":
 		return Operator{TT_OR, str, LEFT_TO_RIGHT, 50, true}
 	case ",":
 		return Operator{TT_COMMA, str, RIGHT_TO_LEFT, 40, false}
+	case "from":
+		return Operator{TT_FROM, str, LEFT_TO_RIGHT, 35, true}
+	case "for":
+		return Operator{TT_FOR, str, false, 35, false}
 	case "if":
 		return Operator{TT_IF, str, RIGHT_TO_LEFT, 30, false}
 	case ":":
@@ -124,12 +132,6 @@ func getOperator(str string) Operator {
 		return Operator{TT_DOUBLE_QUOTE, str, false, 0, false}
 	case "else":
 		return Operator{TT_ELSE, str, false, 0, false}
-	case "for":
-		return Operator{TT_FOR, str, false, 35, false}
-	case "in":
-		return Operator{TT_IN, str, false, 45, true}
-	case "not in":
-		return Operator{TT_NOT_IN, str, false, 45, true}
 	default:
 		return Operator{TT_UNKNOWN, str, false, 0, false}
 	}
@@ -137,7 +139,7 @@ func getOperator(str string) Operator {
 
 func getWordOperators() []string {
 	return []string{
-		"else", "for", "in", "and", "if", "or", "not", "exit", "help", "quit", "example",
+		"else", "for", "in", "and", "if", "from", "or", "not", "exit", "help", "quit", "example",
 	}
 }
 
@@ -195,12 +197,20 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_EQUAL, "=", LEFT_TO_RIGHT, 70, true}
 	case TT_NOT_EQUAL:
 		return Operator{TT_NOT_EQUAL, "!=", LEFT_TO_RIGHT, 70, true}
+	case TT_NOT_IN:
+		return Operator{TT_NOT_IN, "not in", LEFT_TO_RIGHT, 70, true}
+	case TT_IN:
+		return Operator{TT_IN, "in", LEFT_TO_RIGHT, 70, true}
 	case TT_AND:
 		return Operator{TT_AND, "and", LEFT_TO_RIGHT, 60, true}
 	case TT_OR:
 		return Operator{TT_OR, "or", LEFT_TO_RIGHT, 50, true}
 	case TT_COMMA:
 		return Operator{TT_COMMA, ",", RIGHT_TO_LEFT, 40, false}
+	case TT_FROM:
+		return Operator{TT_FROM, "from", LEFT_TO_RIGHT, 35, true}
+	case TT_FOR:
+		return Operator{TT_FOR, "for", false, 35, false}
 	case TT_IF:
 		return Operator{TT_IF, "if", RIGHT_TO_LEFT, 30, false}
 	case TT_COLON:
@@ -223,12 +233,6 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_DOUBLE_QUOTE, "\"", false, 0, false}
 	case TT_ELSE:
 		return Operator{TT_ELSE, "else", false, 0, false}
-	case TT_FOR:
-		return Operator{TT_FOR, "for", false, 32, false}
-	case TT_NOT_IN:
-		return Operator{TT_NOT_IN, "not in", false, 45, true}
-	case TT_IN:
-		return Operator{TT_IN, "in", false, 45, true}
 	default:
 		return Operator{TT_UNKNOWN, "", false, 0, false}
 	}
@@ -296,6 +300,7 @@ const (
 	TT_STRING_ADD
 	TT_STRING_MUL
 	TT_MOD
+	TT_FROM
 	TT_INDIRECTION
 	TT_DEFINE
 	TT_ANON_DEFINE

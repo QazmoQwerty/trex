@@ -24,10 +24,10 @@ func parseProgram(tokens *TokenQueue, expected TokenType) Program {
 		if node != nil {
 			prog.lines = append(prog.lines, node)
 		}
+		eatWS(tokens)
 		if eatToken(tokens, expected) {
 			return prog
 		}
-		eatWS(tokens)
 		expectToken(tokens, TT_TERMINATOR)
 	}
 	return prog
@@ -308,20 +308,22 @@ func led(tokens *TokenQueue, node Node, ateWS bool) Node {
 			parseProgram(tokens, TT_CURLY_BRACES_CLOSE),
 			left.getPosition(),
 		}
+	case TT_FROM:
+		id := convertToIdentifier(left)
+		pos := tokens.peek().pos
+		tokens.next()
+		fors := []ForClause{{convertToIdentifier(left), parseExpression(tokens, leftPrecedenceByTy(TT_FROM))}}
+		eatWS(tokens)
+		expectToken(tokens, TT_IF)
+		cond := parseExpression(tokens, leftPrecedenceByTy(TT_IF))
+		return Comprehension{id, fors, cond, pos}
 	case TT_FOR:
 		tokens.next()
 		clauses := parseForClause(tokens)
-		// clauses := []ForClause{}
-		// for eatToken(tokens, TT_FOR) {
-		// 	ident := parseIdentifier(tokens)
-		// 	eatWS(tokens)
-		// 	expectToken(tokens, TT_IN)
-		// 	clauses = append(clauses, ForClause{ident, parseExpression(tokens, 0)})
-		// }
 		comp := Comprehension{left, clauses, nil, left.getPosition()}
 		ateWS := eatWS(tokens)
 		if eatToken(tokens, TT_IF) {
-			comp.where = parseExpression(tokens, 0)
+			comp.where = parseExpression(tokens, leftPrecedenceByTy(TT_IF))
 		} else if ateWS {
 			tokens.pushFront(Token{TT_WHITESPACE, "", tokens.peek().pos})
 		}
