@@ -24,10 +24,10 @@ func parseProgram(tokens *TokenQueue, expected TokenType) Program {
 		if node != nil {
 			prog.lines = append(prog.lines, node)
 		}
+		eatWS(tokens)
 		if eatToken(tokens, expected) {
 			return prog
 		}
-		eatWS(tokens)
 		expectToken(tokens, TT_TERMINATOR)
 	}
 	return prog

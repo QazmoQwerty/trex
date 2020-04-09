@@ -102,6 +102,8 @@ func getOperator(str string) Operator {
 		return Operator{TT_OR, str, LEFT_TO_RIGHT, 50, true}
 	case ",":
 		return Operator{TT_COMMA, str, RIGHT_TO_LEFT, 40, false}
+	case "where":
+		return Operator{TT_WHERE, str, LEFT_TO_RIGHT, 35, true}
 	case "if":
 		return Operator{TT_IF, str, RIGHT_TO_LEFT, 30, false}
 	case ":":
@@ -137,7 +139,7 @@ func getOperator(str string) Operator {
 
 func getWordOperators() []string {
 	return []string{
-		"else", "for", "in", "and", "if", "or", "not", "exit", "help", "quit", "example",
+		"else", "for", "in", "and", "if", "where", "or", "not", "exit", "help", "quit", "example",
 	}
 }
 
@@ -201,6 +203,8 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_OR, "or", LEFT_TO_RIGHT, 50, true}
 	case TT_COMMA:
 		return Operator{TT_COMMA, ",", RIGHT_TO_LEFT, 40, false}
+	case TT_WHERE:
+		return Operator{TT_WHERE, "where", LEFT_TO_RIGHT, 35, true}
 	case TT_IF:
 		return Operator{TT_IF, "if", RIGHT_TO_LEFT, 30, false}
 	case TT_COLON:
@@ -296,6 +300,7 @@ const (
 	TT_STRING_ADD
 	TT_STRING_MUL
 	TT_MOD
+	TT_WHERE
 	TT_INDIRECTION
 	TT_DEFINE
 	TT_ANON_DEFINE
