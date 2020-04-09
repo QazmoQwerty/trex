@@ -78,7 +78,6 @@ func parseForClause(tokens *TokenQueue) []ForClause {
 	ret := []ForClause{}
 
 	list := parseExpressionList(tokens, leftPrecedenceByTy(TT_FOR))
-	println(printAst(list).Print())
 	for _, i := range list.expressions {
 		switch bo := i.(type) {
 		case BinaryOperation:

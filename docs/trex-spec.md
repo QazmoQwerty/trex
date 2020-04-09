@@ -352,7 +352,9 @@ aaaa
 ## Comprehensions
 
 ```EBNF
-Comprehension   = Expression "for" ForClause { ',' ForClause } ["if" Expression];
+Comprehension   = Expression (FromClause | ForClauses) ["if" Expression];
+FromClause      = "from" Expression;
+ForClauses      = "for" ForClause { ',' ForClause };
 ForClause       = identifier "in" Expression;
 ```
 
@@ -364,6 +366,15 @@ Comprehensions provide a concise way to create lists.
 00, 11, 22, 33
 >>> x*y for x in foo, y in foo if x*y != 0
 1, 2, 3, 2, 4, 6, 3, 6, 9
+```
+
+The 'from' short form can be used when the comprehension is used purely as a filter. These two comprehensions are identical:
+
+```
+>>> n for n in 0..20 if n % 5 = 0
+0, 5, 10, 15
+>>> n from 0..20 if n % 5 = 0
+0, 5, 10, 15
 ```
 
 ## Anonymous Definitions
