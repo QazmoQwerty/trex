@@ -1,16 +1,32 @@
 # Trex Built-In Definitions
 
-## len
+## Table of Contents:
 
-Returns the length of a given string.
+1. [chars](#chars)
+2. [count](#count)
+3. [len](#len)
+4. [lines](#lines)
+5. [max](#max)
+6. [min](#min)
+7. [numOccurs](#numOccurs)
+8. [sort](#sort)
+9. [split](#split)
+10. [toLower](#toLower)
+11. [toUpper](#toUpper)
+12. [unique](#unique)
+13. [words](#words)
+
+## chars
+
+Splits a given string into a list of single characters.
 
 Input: a string.
 
 Parameters: none
 
 ```
---> len "example"
-7
+--> chars 12343
+1, 2, 3, 4, 3
 ```
 
 ## count
@@ -28,13 +44,18 @@ one, two, three
 3
 ```
 
-## split
+## len
 
-TODO - explanation for "split"
+Returns the length of a given string.
 
 Input: a string.
 
-Expected number of parameters: 1
+Parameters: none
+
+```
+--> len "example"
+7
+```
 
 ## lines
 
@@ -53,51 +74,6 @@ three
 one, two, three
 ```
 
-## words
-
-Splits a given string into words.
-
-Input: a string.
-
-Parameters: none
-
-```
---> foo => "this is a sentence"
---> words foo
-this, is, a, sentence
-```
-
-## chars
-
-Splits a given string into a list of single characters.
-
-Input: a string.
-
-Parameters: none
-
-```
---> chars 12343
-1, 2, 3, 4, 3
-```
-
-## min
-
-Finds the smallest value in a list based on a specified order.
-
-Input: a list.
-
-Parameters: 1
-* the definition by which to order the values, which must return a value 
-
-```
---> []
-word
-another
-foo
---> min(#len)
-foo
-```
-
 ## max
 
 Finds the largest value in a list based on a specified order.
@@ -105,6 +81,7 @@ Finds the largest value in a list based on a specified order.
 Input: a list.
 
 Parameters: 1
+
 * the definition by which to order the values, which must return a value 
 
 ```
@@ -116,6 +93,40 @@ foo
 another
 ```
 
+## min
+
+Finds the smallest value in a list based on a specified order.
+
+Input: a list.
+
+Parameters: 1
+
+* the definition by which to order the values, which must return a value 
+
+```
+--> []
+word
+another
+foo
+--> min(#len)
+foo
+```
+
+## numOccurs
+
+Returns the number of times a value occurs inside a given list or string.
+
+Input: a list or string.
+
+Parameters: 1
+
+* the value to count occurences of
+
+```
+--> numOccurs('fo') 'foobafo'
+2
+```
+
 ## sort
 
 Sorts a list (ascending) based on a specified order.
@@ -123,6 +134,7 @@ Sorts a list (ascending) based on a specified order.
 Input: a list.
 
 Parameters: 1
+
 * the definition by which to order the values, which must return a value convertible to a number.
 
 ```
@@ -130,6 +142,45 @@ Parameters: 1
 one, three, four
 --> sort(#len) words
 one, four, three
+```
+
+## split
+
+TODO - explanation for "split"
+
+Input: a string.
+
+Expected number of parameters: 1
+
+```
+--> "example?"
+example?
+```
+
+## toLower
+
+Returns the input with all unicode letters mapped to their lower case.
+
+Input: a string.
+
+Parameters: none
+
+```
+--> toLower "Hello World"
+hello world
+```
+
+## toUpper
+
+Returns the input with all unicode letters mapped to their upper case.
+
+Input: a string.
+
+Parameters: none
+
+```
+--> toUpper "Hello World"
+HELLO WORLD
 ```
 
 ## unique
@@ -146,42 +197,17 @@ Parameters: none
 1, 2, 3, 4, 7
 ```
 
-## numOccurs
+## words
 
-Returns the number of times a value occurs inside a given list or string.
-
-Input: a list or string.
-
-Parameters: 1
-* the value to count occurences of
-
-```
---> numOccurs('fo') 'foobafo'
-2
-```
-
-## toUpper
-
-Returns the input with all unicode letters mapped to their upper case.
+Splits a given string into words.
 
 Input: a string.
 
 Parameters: none
 
 ```
---> toUpper "Hello World"
-HELLO WORLD
+--> foo => "this is a sentence"
+--> words foo
+this, is, a, sentence
 ```
 
-## toLower
-
-Returns the input with all unicode letters mapped to their lower case.
-
-Input: a string.
-
-Parameters: none
-
-```
---> toLower "Hello World"
-hello world
-```
