@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type RuneType int
 
@@ -26,10 +29,10 @@ func runeType(r rune) RuneType {
 		return CT_OPERATOR
 	case '\\':
 		return CT_ESCAPE
-	case ' ', '\t':
-		return CT_WHITESPACE
 	case '\n':
 		return CT_NEWLINE
+	case ' ', '\t', '\r':
+		return CT_WHITESPACE
 	default:
 		return CT_ILLEGAL
 	}
@@ -50,5 +53,5 @@ type Position struct {
 }
 
 func showToken(tok Token) {
-	fmt.Printf("[ type %d | %d:%d:%d - \t\"%s\"]\n", tok.ty, tok.pos.line, tok.pos.start, tok.pos.end, tok.data)
+	fmt.Printf("[ type %d | %d:%d:%d - \t%s]\n", tok.ty, tok.pos.line, tok.pos.start, tok.pos.end, strconv.QuoteToGraphic(tok.data))
 }

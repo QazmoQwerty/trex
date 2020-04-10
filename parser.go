@@ -376,7 +376,7 @@ func led(tokens *TokenQueue, node Node, ateWS bool) Node {
 		expectToken(tokens, TT_PARENTHESIS_CLOSE)
 	} else {
 		right = parseExpression(tokens, functionPrecedence)
-		if !ateWS {
+		if !ateWS && right != nil {
 			panic(myErr{"expected whitespace", right.getPosition(), ERR_PARSER})
 		}
 	}

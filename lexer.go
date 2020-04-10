@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -67,6 +68,7 @@ func lexLine(tokens *TokenQueue, isFirstLine bool) {
 }
 
 func lexProgram(str string, tokens *TokenQueue) {
+	lineCount = 1
 	lex(str, tokens)
 	tokens.pushBack(Token{TT_EOF, "", Position{lineCount, 0, 0}})
 }
@@ -77,8 +79,6 @@ func lex(str string, tokens *TokenQueue) {
 	runes := []rune(str)
 	pos := 0
 	idx := 0
-	var beforeLast Token
-	beforeLast.ty = TT_UNKNOWN
 	for idx < len(runes) {
 		outputToken := true
 		tok := Token{CT_ILLEGAL, string(runes[idx]), Position{lineCount, pos, pos + 1}}
@@ -99,7 +99,7 @@ func lex(str string, tokens *TokenQueue) {
 			lastTy := tokens.peekBack().ty
 			if lastTy == TT_WHITESPACE {
 				tokens.popBack()
-				lastTy = beforeLast.ty
+				lastTy = tokens.peekBack().ty
 			}
 			switch lastTy {
 			case TT_LITERAL, TT_IDENTIFIER, TT_PARENTHESIS_CLOSE, TT_CURLY_BRACES_CLOSE, TT_SQUARE_BRACKETS_CLOSE:
@@ -212,15 +212,13 @@ func lex(str string, tokens *TokenQueue) {
 			idx++
 			break
 		case CT_ILLEGAL:
-			panic(myErr{`unknown character "` + string(curr) + `"`, tok.pos, ERR_LEXER})
+			panic(myErr{`unknown character ` + strconv.QuoteRune(curr), tok.pos, ERR_LEXER})
 		}
 		if pos != 0 {
 			tok.pos.end = pos
 		}
 		if outputToken {
 			tokens.pushBack(tok)
-			beforeLast = tokens.peekBack()
-			// last = tok
 		}
 	}
 }

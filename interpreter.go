@@ -162,9 +162,9 @@ func atoi(str string, pos Position) int {
 	ret, err := strconv.Atoi(str)
 	if err != nil {
 		if len(str) > 30 {
-			panic(myErr{`"` + str[:30] + `"... cannot be converted to a number (full value was not shown due to length)`, pos, ERR_INTERPRETER})
+			panic(myErr{strconv.QuoteToGraphic(str[:30]) + `... cannot be converted to a number (full value was not shown due to length)`, pos, ERR_INTERPRETER})
 		} else {
-			panic(myErr{`"` + str + `" cannot be converted to a number`, pos, ERR_INTERPRETER})
+			panic(myErr{strconv.QuoteToGraphic(str) + ` cannot be converted to a number`, pos, ERR_INTERPRETER})
 		}
 	}
 	return ret

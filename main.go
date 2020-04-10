@@ -108,7 +108,7 @@ func main() {
 }
 
 func interpretFile(input string, file string) {
-	println("interpreting " + file)
+	defer recoverer()
 	globals.codeFile = file
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -117,10 +117,8 @@ func interpretFile(input string, file string) {
 		println("could not open file \"" + file + "\"")
 		ioExit()
 	}
-	println("hey?" + file)
 	tokens := TokenQueue{}
 	lexProgram(string(content), &tokens)
-	println("leced!")
 	if globals.showLex {
 		for _, tok := range tokens.tokens {
 			showToken(tok)
@@ -135,12 +133,13 @@ func interpretFile(input string, file string) {
 			runLine(n, StringValue{input})
 		}
 	}
-	println("Done!")
 }
 
 func startInterpreter(input string) {
 	fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
 	fmt.Printf("Type \"help\" for help, \"exit\" to exit.\n")
+	lineCount = 1
+	globals.codeFile = ""
 	for true {
 		tokens := TokenQueue{}
 		lexLine(&tokens, true)

@@ -97,17 +97,23 @@ func printError(err error) {
 	case myErr:
 		whiteBold := color.New(color.FgWhite).Add(color.Bold).PrintfFunc()
 		redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
+		// blueBold := color.New(color.FgBlue).Add(color.Bold).PrintfFunc()
 		line := ""
 		if globals.codeFile != "" {
-			whiteBold("At line %d\n", e.pos.line)
 			var err error
 			line, err = getLineOfFile(globals.codeFile, e.pos.line)
 			if err != nil {
 				println(err.Error())
 				return
-			} else {
-				print(line)
 			}
+			redBold(" --> ")
+			whiteBold("line %d\n", e.pos.line)
+			redBold("  | \n  | ")
+			print(line)
+			if !strings.HasSuffix(line, "\n") {
+				println()
+			}
+			redBold("  | ")
 		} else {
 			if e.pos.line <= 0 || len(allUserInput) < e.pos.line {
 				println("an internal error occurred...")
@@ -117,9 +123,15 @@ func printError(err error) {
 				print("    ")
 				line = allUserInput[e.pos.line-1]
 			} else {
-				whiteBold("At line %d\n", e.pos.line)
+				redBold(" --> ")
+				whiteBold("line %d\n", e.pos.line)
 				line = allUserInput[e.pos.line-1]
-				print("    " + line + "\n    ")
+				redBold("  | \n  | ")
+				print(line)
+				if !strings.HasSuffix(line, "\n") {
+					println()
+				}
+				redBold("  | ")
 			}
 		}
 		for i := 0; i < e.pos.start && i < len(line); i++ {
@@ -166,8 +178,12 @@ func getLineOfFile(fn string, n int) (string, error) {
 	bf := bufio.NewReader(f)
 	var line string
 	for lnum := 0; lnum < n; lnum++ {
+		// line, err = bf.ReadString('\n')
 		line, err = bf.ReadString('\n')
 		if err == io.EOF {
+			if lnum == n-1 && line != "" {
+				return line, nil
+			}
 			switch lnum {
 			case 0:
 				return "", errors.New("no lines in file")
