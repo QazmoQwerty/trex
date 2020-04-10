@@ -11,15 +11,46 @@ import (
 
 	"github.com/disiqueira/gotree"
 	"github.com/fatih/color"
-	"github.com/peterh/liner"
+	"gitlab.com/QazmoQwerty/go-liner-highlight"
 )
 
 var allUserInput = []string{}
 var lastLine = ""
 
+var trexKeywords = []string{
+	"if", "else", "for", "in", "not",
+}
+
+//Note: we should put the longest operators first.
+var trexOperators = []string{
+	"+=", "-=", "*=", "/=", "%=", "^=",
+	"++", "--",
+	"&&", "||",
+	"<<", ">>",
+	"->", "=>",
+	"==", "!=", "<=", ">=", "=~", "!~",
+	"+", "-", "*", "/", "%", "^",
+	"(", ")", "{", "}", "[", "]",
+	"=", "<", ">",
+	"!", "&", "|", ".",
+	",", "?", ":", ";",
+}
+
+var colors = map[liner.Category]string{
+	liner.NumberType:   liner.COLOR_YELLOW,
+	liner.KeywordType:  liner.COLOR_MAGENTA,
+	liner.StringType:   liner.COLOR_CYAN,
+	liner.CommentType:  liner.COLOR_GREEN,
+	liner.OperatorType: liner.COLOR_RED,
+}
+
 func ioSetup() {
 	globals.liner = liner.NewLiner()
 	globals.liner.SetWordCompleter(wordCompleter)
+	globals.liner.SetSyntaxHighlight(true)
+	globals.liner.RegisterOperators(trexOperators)
+	globals.liner.RegisterKeywords(trexKeywords)
+	globals.liner.RegisterColors(colors)
 }
 
 func wordCompleter(line string, pos int) (string, []string, string) {

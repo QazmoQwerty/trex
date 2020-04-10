@@ -7,7 +7,7 @@ import (
 	"reflect"
 
 	"github.com/fatih/color"
-	"github.com/peterh/liner"
+	"gitlab.com/QazmoQwerty/go-liner-highlight"
 )
 
 const gitlabLink = "gitlab.com/QazmoQwerty/trex"
