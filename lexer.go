@@ -126,6 +126,11 @@ func lex(str string, tokens *TokenQueue) {
 			}
 			if tok.data == "false" || tok.data == "true" {
 				tok.ty = TT_LITERAL
+				if tok.data == "false" {
+					tok.data = ""
+				} else {
+					tok.data = "1"
+				}
 			} else if isOperator(tok.data) {
 				tok.ty = opType(tok.data)
 				if tok.ty == TT_IN && tokens.peekBack().ty == TT_WHITESPACE && tokens.peekBeforeBack().ty == TT_NOT {

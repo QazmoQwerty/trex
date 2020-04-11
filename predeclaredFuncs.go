@@ -258,4 +258,8 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 			return input
 		}
 	},
+	"replace": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(2, params, pos)
+		return StringValue{strings.ReplaceAll(input.String(), params.vals[0].String(), params.vals[1].String())}
+	},
 }
