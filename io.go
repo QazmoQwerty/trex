@@ -48,9 +48,6 @@ func ioSetup() {
 		globals.liner.RegisterFunction(k)
 	}
 	globals.liner.RegisterFunctions([]string{"exit", "quit", "help", "example"})
-	// for k := range predeclaredFuncs {
-	// 	globals.liner.(k)
-	// }
 }
 
 func wordCompleter(line string, pos int) (string, []string, string) {
@@ -104,7 +101,9 @@ func wordCompleter(line string, pos int) (string, []string, string) {
 }
 
 func ioExit() {
-	globals.liner.Close()
+	if globals.liner != nil {
+		globals.liner.Close()
+	}
 	os.Exit(0)
 }
 

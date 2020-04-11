@@ -47,7 +47,7 @@ func main() {
 		-h (show this message)
 		-i (run interpreter after code files have ben executed)
 		-v (show version)
-		-hl (turn on syntax highlighting in the interpreter - currently buggy, might not work on your terminal)
+		-hl (turn on syntax highlighting in the interpreter)
 
 	debug flags:
 		-lex (show output of the lexer)
