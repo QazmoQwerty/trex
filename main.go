@@ -7,30 +7,33 @@ import (
 	"reflect"
 
 	"github.com/fatih/color"
-	"github.com/peterh/liner"
+	"gitlab.com/QazmoQwerty/go-liner-highlight"
 )
 
 const gitlabLink = "gitlab.com/QazmoQwerty/trex"
 
 var globals struct {
-	liner          *liner.State
-	showAst        bool
-	showLex        bool
-	forceInterpret bool
-	codeFile       string
+	liner                      *liner.State
+	showAst                    bool
+	showLex                    bool
+	forceInterpret             bool
+	interpreterSyntaxHighlight bool
+	codeFile                   string
+	errorColor                 *color.Color
+	outputColor                *color.Color
 }
 
 func main() {
-	ioSetup()
-	defer ioExit()
 	args := os.Args[1:]
 
 	input := ""
 	fileNames := []string{}
-	redBold := color.New(color.FgRed).Add(color.Bold).PrintfFunc()
+	globals.errorColor = color.New(color.FgHiRed)
+	globals.outputColor = color.New()
 	globals.codeFile = ""
 	globals.showAst = false
 	globals.showLex = false
+	globals.interpreterSyntaxHighlight = false
 	globals.forceInterpret = false
 
 	for _, arg := range args {
@@ -44,6 +47,7 @@ func main() {
 		-h (show this message)
 		-i (run interpreter after code files have ben executed)
 		-v (show version)
+		-hl (turn on syntax highlighting in the interpreter)
 
 	debug flags:
 		-lex (show output of the lexer)
@@ -53,14 +57,16 @@ func main() {
 				globals.showAst = true
 			case "-lex":
 				globals.showLex = true
+			case "-hl":
+				globals.interpreterSyntaxHighlight = true
 			case "-i":
 				globals.forceInterpret = true
 			case "-v":
 				fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
 				ioExit()
 			default:
-				redBold("Error: ")
-				println("Unknown flag \"" + arg + "\".")
+				globals.errorColor.Print("Error:")
+				println(" Unknown flag \"" + arg + "\".")
 				println("Usage: trex <input> <files> [arguments]")
 				println("Try \"trex -h\" for more information.")
 				ioExit()
@@ -74,21 +80,28 @@ func main() {
 		}
 	}
 
-	// if input == "" {
-	// 	redBold("Error: ")
-	// 	println("missing input string")
-	// 	println("Try \"trex -h\" for more information.")
-	// 	ioExit()
-	// 	return
-	// }
+	ioSetup()
+	defer ioExit()
+
+	if globals.interpreterSyntaxHighlight {
+		globals.outputColor = color.New(color.FgHiBlack)
+	}
+
+	if input == "" {
+		globals.errorColor.Print("Error:")
+		println(" missing input string")
+		println("Try \"trex -h\" for more information.")
+		ioExit()
+		return
+	}
 	if input != "" {
 		if input[0] == '[' && input[len(input)-1] == ']' {
 			input = input[1 : len(input)-1]
 		} else {
 			content, err := ioutil.ReadFile(input)
 			if err != nil {
-				redBold("Error: ")
-				println("could not open file \"" + input + "\"")
+				globals.errorColor.Print("Error:")
+				println(" could not open file \"" + input + "\"")
 				ioExit()
 			}
 			input = string(content)
@@ -113,8 +126,8 @@ func interpretFile(input string, file string) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		println("op" + file)
-		color.New(color.FgRed).Add(color.Bold).Printf("Error: ")
-		println("could not open file \"" + file + "\"")
+		globals.errorColor.Print("Error:")
+		println(" could not open file \"" + file + "\"")
 		ioExit()
 	}
 	tokens := TokenQueue{}
@@ -178,7 +191,9 @@ func runLine(node Node, input Value) {
 	case Definition:
 		break
 	default:
-		println(val.String())
+		globals.outputColor.Print(val.String())
+		println()
+		// println(val.String())
 	}
 }
 

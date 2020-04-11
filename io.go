@@ -11,15 +11,43 @@ import (
 
 	"github.com/disiqueira/gotree"
 	"github.com/fatih/color"
-	"github.com/peterh/liner"
+	"gitlab.com/QazmoQwerty/go-liner-highlight"
 )
 
 var allUserInput = []string{}
 var lastLine = ""
 
+var trexKeywords = []string{
+	"if", "else", "for", "in", "from", "not", "or", "and",
+}
+
+//Note: we should put the longest operators first.
+var trexOperators = []string{
+	"=", "!", "<", ">", "#", "+", "-", "*", "/", "%", ":",
+	"|", "[", "{", "(", "]", "}", ")", ",", ".",
+}
+
+var colors = map[liner.Category](*color.Color){
+	liner.NumberType:   color.New(color.FgHiRed),
+	liner.StringType:   color.New(color.FgHiRed),
+	liner.KeywordType:  color.New(color.FgHiBlue),
+	liner.CommentType:  color.New(color.FgHiGreen),
+	liner.FunctionType: color.New(color.FgHiYellow),
+	liner.OperatorType: color.New(),
+	liner.IdentType:    color.New(),
+}
+
 func ioSetup() {
 	globals.liner = liner.NewLiner()
 	globals.liner.SetWordCompleter(wordCompleter)
+	globals.liner.SetSyntaxHighlight(globals.interpreterSyntaxHighlight)
+	globals.liner.RegisterOperators(trexOperators)
+	globals.liner.RegisterKeywords(trexKeywords)
+	globals.liner.RegisterColors(colors)
+	for k := range predeclaredFuncs {
+		globals.liner.RegisterFunction(k)
+	}
+	globals.liner.RegisterFunctions([]string{"exit", "quit", "help", "example"})
 }
 
 func wordCompleter(line string, pos int) (string, []string, string) {
@@ -73,7 +101,9 @@ func wordCompleter(line string, pos int) (string, []string, string) {
 }
 
 func ioExit() {
-	globals.liner.Close()
+	if globals.liner != nil {
+		globals.liner.Close()
+	}
 	os.Exit(0)
 }
 
@@ -144,8 +174,9 @@ func printError(err error) {
 		for i := e.pos.start; i < e.pos.end; i++ {
 			redBold("^")
 		}
-		redBold("\nError: ")
-		println(e.msg)
+		println()
+		globals.errorColor.Print("Error:")
+		println(" " + e.msg)
 	default:
 		println(e.Error())
 	}

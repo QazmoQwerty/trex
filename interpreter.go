@@ -125,6 +125,9 @@ func (this Program) interpret(input Value) Value {
 
 func (this Definition) interpret(input Value) Value {
 	definitions[len(definitions)-1][this.id.id] = this
+	if len(definitions) == 1 {
+		globals.liner.RegisterFunction(this.id.id)
+	}
 	return NullValue{}
 }
 
