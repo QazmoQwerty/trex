@@ -6,29 +6,42 @@
 2. [bool](#bool)
 3. [chars](#chars)
 4. [count](#count)
-5. [fold](#fold)
-6. [foldl](#foldl)
-7. [foldr](#foldr)
-8. [hasMatch](#hasMatch)
-9. [isDigit](#isDigit)
-10. [isLetter](#isLetter)
-11. [isLower](#isLower)
-12. [isUpper](#isUpper)
-13. [join](#join)
-14. [len](#len)
-15. [lines](#lines)
-16. [matches](#matches)
-17. [max](#max)
-18. [min](#min)
-19. [numOccurs](#numOccurs)
-20. [replace](#replace)
-21. [reverse](#reverse)
-22. [sort](#sort)
-23. [split](#split)
-24. [toLower](#toLower)
-25. [toUpper](#toUpper)
-26. [unique](#unique)
-27. [words](#words)
+5. [endswith](#endswith)
+6. [fold](#fold)
+7. [foldl](#foldl)
+8. [foldr](#foldr)
+9. [hasmatch](#hasmatch)
+10. [indexby](#indexby)
+11. [indexof](#indexof)
+12. [isalnum](#isalnum)
+13. [isalpha](#isalpha)
+14. [isdigit](#isdigit)
+15. [isletter](#isletter)
+16. [islower](#islower)
+17. [isnum](#isnum)
+18. [isspace](#isspace)
+19. [istitle](#istitle)
+20. [isupper](#isupper)
+21. [join](#join)
+22. [lastindexby](#lastindexby)
+23. [lastindexof](#lastindexof)
+24. [len](#len)
+25. [lines](#lines)
+26. [matches](#matches)
+27. [max](#max)
+28. [min](#min)
+29. [numoccurs](#numoccurs)
+30. [replace](#replace)
+31. [reverse](#reverse)
+32. [sort](#sort)
+33. [split](#split)
+34. [startswith](#startswith)
+35. [swapcase](#swapcase)
+36. [tolower](#tolower)
+37. [totitle](#totitle)
+38. [toupper](#toupper)
+39. [unique](#unique)
+40. [words](#words)
 
 ## ascii
 
@@ -86,6 +99,21 @@ one, two, three
 3
 ```
 
+## endswith
+
+Checks whether a given string ends with a specified suffix.
+
+Input: a string.
+
+Parameters: 1
+
+* The suffix
+
+```
+--> bool endswith('ab') 'kabab'
+true
+```
+
 ## fold
 
 Applies a right fold to a list. Equivalent to 'foldr'.
@@ -131,7 +159,7 @@ Parameters: 1
 15
 ```
 
-## hasMatch
+## hasmatch
 
 Finds whether a regular expression has a match whithin a string.
 
@@ -142,11 +170,71 @@ Parameters: 1
 * The regular expression to match 
 
 ```
---> bool hasMatch('a[a-z]') "abbbjaja"
+--> bool hasmatch('a[a-z]') "abbbjaja"
 true
 ```
 
-## isDigit
+## indexby
+
+Finds the index of the first character which satisfies the definition. Returns -1 if no character satisfies the definition.
+
+Input: a string.
+
+Parameters: 1
+
+* The definition
+
+```
+--> indexby(->[] = 'a' or [] = 'b') "this is a string"
+8
+```
+
+## indexof
+
+Finds the index of the first instance of a substring. Returns -1 if the substring is not found.
+
+Input: a string.
+
+Parameters: 1
+
+* The substring to find
+
+```
+--> indexof("s") "this is a string"
+3
+```
+
+## isalnum
+
+Checks whether if all characters in a string are alphanumeric and there is at least one character.
+
+Input: a string.
+
+Parameters: none
+
+```
+--> bool isalnum 'abc12'
+true
+--> bool isalnum 'ab$$1'
+false
+```
+
+## isalpha
+
+Checks if all characters in a string are alphabetic and there is at least one character.
+
+Input: a string.
+
+Parameters: none
+
+```
+--> bool isalpha 'abc12'
+true
+--> bool isalpha 'ab$$1'
+false
+```
+
+## isdigit
 
 Checks if a string is a single digit.
 
@@ -155,15 +243,15 @@ Input: a string
 Parameters: none
 
 ```
---> bool isLetter 1
+--> bool isdigit 1
 true
---> bool isLetter 'a'
+--> bool isdigit 'a'
 false
---> bool isLetter 12
+--> bool isdigit 12
 false
 ```
 
-## isLetter
+## isletter
 
 Checks if a string is a single letter.
 
@@ -172,15 +260,15 @@ Input: a string
 Parameters: none
 
 ```
---> bool isLetter 1
+--> bool isletter 1
 false
---> bool isLetter 'a'
+--> bool isletter 'a'
 true
---> bool isLetter 'aa'
+--> bool isletter 'aa'
 false
 ```
 
-## isLower
+## islower
 
 Checks if a string is comprised only of lowercase letters.
 
@@ -189,13 +277,54 @@ Input: a string
 Parameters: none
 
 ```
---> bool isUpper 'A'
+--> bool islower 'A'
 false
---> bool isUpper 'aa'
+--> bool islower 'aa'
 true
 ```
 
-## isUpper
+## isnum
+
+Checks if all characters in a string are numeric and there is at least one character.
+
+Input: a string.
+
+Parameters: none
+
+```
+--> bool isnum 13
+true
+--> bool isnum 'ab'
+false
+```
+
+## isspace
+
+Checks if there are only whitespace characters in the string and there is at least one character
+
+Input: a string.
+
+Parameters: none
+
+```
+--> bool isspace '  '
+true
+```
+
+## istitle
+
+Checks if all words in a string begin with an uppercase letter and are otherwise are lowercase.
+
+Input: a string.
+
+Parameters: none
+
+```
+--> bool istitle 'Her Royal Highness'
+true
+```
+
+## isupper
 
 Checks if a string is comprised only of uppercase letters.
 
@@ -204,9 +333,9 @@ Input: a string
 Parameters: none
 
 ```
---> bool isUpper 'a'
+--> bool isupper 'a'
 false
---> bool isUpper 'AA'
+--> bool isupper 'AA'
 true
 ```
 
@@ -221,6 +350,36 @@ Parameters: none
 ```
 --> join (1, 2, 3, 4, 5)
 12345
+```
+
+## lastindexby
+
+Finds the index of the last character which satisfies the definition. Returns -1 if no character satisfies the definition.
+
+Input: a string.
+
+Parameters: 1
+
+* The definition
+
+```
+--> lastindexby(->[] = 'a' or [] = 'b') "kabab"
+4
+```
+
+## lastindexof
+
+Finds the index of the last instance of a substring. Returns -1 if the substring is not found.
+
+Input: a string.
+
+Parameters: 1
+
+* The substring to find
+
+```
+--> lastindexof("s") "this is a string"
+10
 ```
 
 ## len
@@ -306,7 +465,7 @@ foo
 foo
 ```
 
-## numOccurs
+## numoccurs
 
 Returns the number of times a value occurs inside a given list or string.
 
@@ -317,7 +476,7 @@ Parameters: 1
 * the value to count occurences of
 
 ```
---> numOccurs('fo') 'foobafo'
+--> numoccurs('fo') 'foobafo'
 2
 ```
 
@@ -385,7 +544,35 @@ Expected number of parameters: 1
 12, 13, 14, 15
 ```
 
-## toLower
+## startswith
+
+Checks whether a given string starts with a specified prefix.
+
+Input: a string.
+
+Parameters: 1
+
+* The prefix
+
+```
+--> bool startswith('tr') 'trex'
+true
+```
+
+## swapcase
+
+Swaps uppercase letters with their lowercase counterparts and vice versa. 
+
+Input: a string
+
+Parameters: none
+
+```
+--> swapcase "Her Royal Highness"
+hER rOYAL hIGHNESS
+```
+
+## tolower
 
 Returns the input with all unicode letters mapped to their lower case.
 
@@ -394,11 +581,24 @@ Input: a string.
 Parameters: none
 
 ```
---> toLower "Hello World"
+--> tolower "Hello World"
 hello world
 ```
 
-## toUpper
+## totitle
+
+Converts the letters at the beginning of each word to uppercase.
+
+Input: a string
+
+Parameters: none
+
+```
+--> totitle "her royal highness"
+Her Royal Highness
+```
+
+## toupper
 
 Returns the input with all unicode letters mapped to their upper case.
 
@@ -407,7 +607,7 @@ Input: a string.
 Parameters: none
 
 ```
---> toUpper "Hello World"
+--> toupper "Hello World"
 HELLO WORLD
 ```
 

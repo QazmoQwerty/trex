@@ -94,7 +94,7 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		}
 		return ret
 	},
-	"numOccurs": func(input Value, params ListValue, pos Position) Value {
+	"numoccurs": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
 		count := 0
 		vals := valAsList(input).vals
@@ -109,29 +109,39 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		}
 		return StringValue{strconv.Itoa(count)}
 	},
-	"toUpper": func(input Value, params ListValue, pos Position) Value {
+	"toupper": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
 		return StringValue{strings.ToUpper(input.String())}
 	},
-	"toLower": func(input Value, params ListValue, pos Position) Value {
+	"tolower": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
 		return StringValue{strings.ToLower(input.String())}
 	},
-	"isLetter": func(input Value, params ListValue, pos Position) Value {
+	"isletter": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
 		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsLetter([]rune(input.String())[0]))
 	},
-	"isUpper": func(input Value, params ListValue, pos Position) Value {
+	"isupper": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
-		// TODO - fix this to fit docs.txt
-		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsUpper([]rune(input.String())[0]))
+		str := input.String()
+		for _, r := range []rune(str) {
+			if !unicode.IsUpper(r) {
+				return createBoolValue(false)
+			}
+		}
+		return createBoolValue(str != "")
 	},
-	"isLower": func(input Value, params ListValue, pos Position) Value {
+	"islower": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
-		// TODO - fix this to fit docs.txt
-		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsLower([]rune(input.String())[0]))
+		str := input.String()
+		for _, r := range []rune(str) {
+			if !unicode.IsLower(r) {
+				return createBoolValue(false)
+			}
+		}
+		return createBoolValue(str != "")
 	},
-	"isDigit": func(input Value, params ListValue, pos Position) Value {
+	"isdigit": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
 		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsDigit([]rune(input.String())[0]))
 	},
@@ -157,7 +167,7 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 		}
 		return ret
 	},
-	"hasMatch": func(input Value, params ListValue, pos Position) Value {
+	"hasmatch": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
 		r := regexp.MustCompile(params.vals[0].String())
 		return createBoolValue(r.MatchString(input.String()))
@@ -246,5 +256,94 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 			return StringValue{"true"}
 		}
 		return StringValue{"false"}
+	},
+	"startswith": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		return createBoolValue(strings.HasPrefix(input.String(), params.vals[0].String()))
+	},
+	"endswith": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		return createBoolValue(strings.HasSuffix(input.String(), params.vals[0].String()))
+	},
+	"isalnum": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		str := input.String()
+		for _, r := range []rune(str) {
+			if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+				return createBoolValue(false)
+			}
+		}
+		return createBoolValue(str != "")
+	},
+	"isalpha": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		str := input.String()
+		for _, r := range []rune(str) {
+			if !unicode.IsLetter(r) {
+				return createBoolValue(false)
+			}
+		}
+		return createBoolValue(str != "")
+	},
+	"isnum": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		str := input.String()
+		for _, r := range []rune(str) {
+			if !unicode.IsDigit(r) {
+				return createBoolValue(false)
+			}
+		}
+		return createBoolValue(str != "")
+	},
+	"isspace": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		str := input.String()
+		for _, r := range []rune(str) {
+			if !unicode.IsSpace(r) {
+				return createBoolValue(false)
+			}
+		}
+		return createBoolValue(str != "")
+	},
+	"istitle": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		str := input.String()
+		return createBoolValue(str != "" && strings.Title(strings.ToLower(str)) == str)
+	},
+	"swapcase": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return StringValue{strings.Map(func(r rune) rune {
+			if unicode.IsLower(r) {
+				return unicode.ToUpper(r)
+			} else if unicode.IsUpper(r) {
+				return unicode.ToLower(r)
+			} else {
+				return r
+			}
+		}, input.String())}
+	},
+	"totitle": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		return StringValue{strings.Title(input.String())}
+	},
+	"indexof": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		return StringValue{strconv.Itoa(strings.Index(input.String(), params.vals[0].String()))}
+	},
+	"lastindexof": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		return StringValue{strconv.Itoa(strings.LastIndex(input.String(), params.vals[0].String()))}
+	},
+	"indexby": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		return StringValue{strconv.Itoa(strings.IndexFunc(input.String(), func(r rune) bool {
+			return callDefinition(params.vals[0], StringValue{string(r)}, ListValue{}, pos).String() != ""
+		}))}
+	},
+	"lastindexby": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(1, params, pos)
+		return StringValue{strconv.Itoa(strings.LastIndexFunc(input.String(), func(r rune) bool {
+			return callDefinition(params.vals[0], StringValue{string(r)}, ListValue{}, pos).String() != ""
+		}))}
 	},
 }

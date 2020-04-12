@@ -30,6 +30,14 @@ one, two, three
 --> count lines
 3
 
+## endswith
+Checks whether a given string ends with a specified suffix.
+Input: a string.
+Parameters: 1
+* The suffix
+--> bool endswith('ab') 'kabab'
+true
+
 ## fold
 Applies a right fold to a list. Equivalent to 'foldr'.
 Input: a list
@@ -54,52 +62,109 @@ Parameters: 1
 --> fold(a,b -> a+b) (1, 2, 3, 4, 5)
 15
 
-## hasMatch
+## hasmatch
 Finds whether a regular expression has a match whithin a string.
 Input: a string
 Parameters: 1
 * The regular expression to match 
---> bool hasMatch('a[a-z]') "abbbjaja"
+--> bool hasmatch('a[a-z]') "abbbjaja"
 true
 
-## isDigit
+## indexby
+Finds the index of the first character which satisfies the definition. Returns -1 if no character satisfies the definition.
+Input: a string.
+Parameters: 1
+* The definition
+--> indexby(->[] = 'a' or [] = 'b') "this is a string"
+8
+
+## indexof
+Finds the index of the first instance of a substring. Returns -1 if the substring is not found.
+Input: a string.
+Parameters: 1
+* The substring to find
+--> indexof("s") "this is a string"
+3
+
+## isalnum
+Checks whether if all characters in a string are alphanumeric and there is at least one character.
+Input: a string.
+Parameters: none
+--> bool isalnum 'abc12'
+true
+--> bool isalnum 'ab$$1'
+false
+
+## isalpha
+Checks if all characters in a string are alphabetic and there is at least one character.
+Input: a string.
+Parameters: none
+--> bool isalpha 'abc12'
+true
+--> bool isalpha 'ab$$1'
+false
+
+## isdigit
 Checks if a string is a single digit.
 Input: a string
 Parameters: none
---> bool isLetter 1
+--> bool isdigit 1
 true
---> bool isLetter 'a'
+--> bool isdigit 'a'
 false
---> bool isLetter 12
+--> bool isdigit 12
 false
 
-## isLetter
+## isletter
 Checks if a string is a single letter.
 Input: a string
 Parameters: none
---> bool isLetter 1
+--> bool isletter 1
 false
---> bool isLetter 'a'
+--> bool isletter 'a'
 true
---> bool isLetter 'aa'
+--> bool isletter 'aa'
 false
 
-## isLower
+## islower
 Checks if a string is comprised only of lowercase letters.
 Input: a string
 Parameters: none
---> bool isUpper 'A'
+--> bool islower 'A'
 false
---> bool isUpper 'aa'
+--> bool islower 'aa'
 true
 
-## isUpper
+## isnum
+Checks if all characters in a string are numeric and there is at least one character.
+Input: a string.
+Parameters: none
+--> bool isnum 13
+true
+--> bool isnum 'ab'
+false
+
+## isspace
+Checks if there are only whitespace characters in the string and there is at least one character
+Input: a string.
+Parameters: none
+--> bool isspace '  '
+true
+
+## istitle
+Checks if all words in a string begin with an uppercase letter and are otherwise are lowercase.
+Input: a string.
+Parameters: none
+--> bool istitle 'Her Royal Highness'
+true
+
+## isupper
 Checks if a string is comprised only of uppercase letters.
 Input: a string
 Parameters: none
---> bool isUpper 'a'
+--> bool isupper 'a'
 false
---> bool isUpper 'AA'
+--> bool isupper 'AA'
 true
 
 ## join
@@ -108,6 +173,22 @@ Input: a list
 Parameters: none
 --> join (1, 2, 3, 4, 5)
 12345
+
+## lastindexby
+Finds the index of the last character which satisfies the definition. Returns -1 if no character satisfies the definition.
+Input: a string.
+Parameters: 1
+* The definition
+--> lastindexby(->[] = 'a' or [] = 'b') "kabab"
+4
+
+## lastindexof
+Finds the index of the last instance of a substring. Returns -1 if the substring is not found.
+Input: a string.
+Parameters: 1
+* The substring to find
+--> lastindexof("s") "this is a string"
+10
 
 ## len
 Returns the length of a given string.
@@ -159,12 +240,12 @@ foo
 --> min(#len)
 foo
 
-## numOccurs
+## numoccurs
 Returns the number of times a value occurs inside a given list or string.
 Input: a list or string.
 Parameters: 1
 * the value to count occurences of
---> numOccurs('fo') 'foobafo'
+--> numoccurs('fo') 'foobafo'
 2
 
 ## replace
@@ -203,18 +284,40 @@ Expected number of parameters: 1
 --> split(' ') "12 13 14 15"
 12, 13, 14, 15
 
-## toLower
+## startswith
+Checks whether a given string starts with a specified prefix.
+Input: a string.
+Parameters: 1
+* The prefix
+--> bool startswith('tr') 'trex'
+true
+
+## swapcase
+Swaps uppercase letters with their lowercase counterparts and vice versa. 
+Input: a string
+Parameters: none
+--> swapcase "Her Royal Highness"
+hER rOYAL hIGHNESS
+
+## tolower
 Returns the input with all unicode letters mapped to their lower case.
 Input: a string.
 Parameters: none
---> toLower "Hello World"
+--> tolower "Hello World"
 hello world
 
-## toUpper
+## totitle
+Converts the letters at the beginning of each word to uppercase.
+Input: a string
+Parameters: none
+--> totitle "her royal highness"
+Her Royal Highness
+
+## toupper
 Returns the input with all unicode letters mapped to their upper case.
 Input: a string.
 Parameters: none
---> toUpper "Hello World"
+--> toupper "Hello World"
 HELLO WORLD
 
 ## unique

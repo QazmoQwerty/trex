@@ -63,6 +63,15 @@ Input: a list.
 Parameters: none
 Tip: try "example count" to see an example.
 `)
+	case "endswith":
+		globals.outputColor.Println(`
+"endswith":
+Checks whether a given string ends with a specified suffix.
+Input: a string.
+Parameters: 1
+* The suffix
+Tip: try "example endswith" to see an example.
+`)
 	case "fold":
 		globals.outputColor.Println(`
 "fold":
@@ -90,46 +99,104 @@ Parameters: 1
 * The definition by which to fold fold the values
 Tip: try "example foldr" to see an example.
 `)
-	case "hasMatch":
+	case "hasmatch":
 		globals.outputColor.Println(`
-"hasMatch":
+"hasmatch":
 Finds whether a regular expression has a match whithin a string.
 Input: a string
 Parameters: 1
 * The regular expression to match 
-Tip: try "example hasMatch" to see an example.
+Tip: try "example hasmatch" to see an example.
 `)
-	case "isDigit":
+	case "indexby":
 		globals.outputColor.Println(`
-"isDigit":
+"indexby":
+Finds the index of the first character which satisfies the definition. Returns -1 if no character satisfies the definition.
+Input: a string.
+Parameters: 1
+* The definition
+Tip: try "example indexby" to see an example.
+`)
+	case "indexof":
+		globals.outputColor.Println(`
+"indexof":
+Finds the index of the first instance of a substring. Returns -1 if the substring is not found.
+Input: a string.
+Parameters: 1
+* The substring to find
+Tip: try "example indexof" to see an example.
+`)
+	case "isalnum":
+		globals.outputColor.Println(`
+"isalnum":
+Checks whether if all characters in a string are alphanumeric and there is at least one character.
+Input: a string.
+Parameters: none
+Tip: try "example isalnum" to see an example.
+`)
+	case "isalpha":
+		globals.outputColor.Println(`
+"isalpha":
+Checks if all characters in a string are alphabetic and there is at least one character.
+Input: a string.
+Parameters: none
+Tip: try "example isalpha" to see an example.
+`)
+	case "isdigit":
+		globals.outputColor.Println(`
+"isdigit":
 Checks if a string is a single digit.
 Input: a string
 Parameters: none
-Tip: try "example isDigit" to see an example.
+Tip: try "example isdigit" to see an example.
 `)
-	case "isLetter":
+	case "isletter":
 		globals.outputColor.Println(`
-"isLetter":
+"isletter":
 Checks if a string is a single letter.
 Input: a string
 Parameters: none
-Tip: try "example isLetter" to see an example.
+Tip: try "example isletter" to see an example.
 `)
-	case "isLower":
+	case "islower":
 		globals.outputColor.Println(`
-"isLower":
+"islower":
 Checks if a string is comprised only of lowercase letters.
 Input: a string
 Parameters: none
-Tip: try "example isLower" to see an example.
+Tip: try "example islower" to see an example.
 `)
-	case "isUpper":
+	case "isnum":
 		globals.outputColor.Println(`
-"isUpper":
+"isnum":
+Checks if all characters in a string are numeric and there is at least one character.
+Input: a string.
+Parameters: none
+Tip: try "example isnum" to see an example.
+`)
+	case "isspace":
+		globals.outputColor.Println(`
+"isspace":
+Checks if there are only whitespace characters in the string and there is at least one character
+Input: a string.
+Parameters: none
+Tip: try "example isspace" to see an example.
+`)
+	case "istitle":
+		globals.outputColor.Println(`
+"istitle":
+Checks if all words in a string begin with an uppercase letter and are otherwise are lowercase.
+Input: a string.
+Parameters: none
+Tip: try "example istitle" to see an example.
+`)
+	case "isupper":
+		globals.outputColor.Println(`
+"isupper":
 Checks if a string is comprised only of uppercase letters.
 Input: a string
 Parameters: none
-Tip: try "example isUpper" to see an example.
+Tip: try "example isupper" to see an example.
 `)
 	case "join":
 		globals.outputColor.Println(`
@@ -138,6 +205,24 @@ Joins all elements in a list into a single string.
 Input: a list
 Parameters: none
 Tip: try "example join" to see an example.
+`)
+	case "lastindexby":
+		globals.outputColor.Println(`
+"lastindexby":
+Finds the index of the last character which satisfies the definition. Returns -1 if no character satisfies the definition.
+Input: a string.
+Parameters: 1
+* The definition
+Tip: try "example lastindexby" to see an example.
+`)
+	case "lastindexof":
+		globals.outputColor.Println(`
+"lastindexof":
+Finds the index of the last instance of a substring. Returns -1 if the substring is not found.
+Input: a string.
+Parameters: 1
+* The substring to find
+Tip: try "example lastindexof" to see an example.
 `)
 	case "len":
 		globals.outputColor.Println(`
@@ -182,14 +267,14 @@ Parameters: 1
 * the definition by which to order the values, which must return a value 
 Tip: try "example min" to see an example.
 `)
-	case "numOccurs":
+	case "numoccurs":
 		globals.outputColor.Println(`
-"numOccurs":
+"numoccurs":
 Returns the number of times a value occurs inside a given list or string.
 Input: a list or string.
 Parameters: 1
 * the value to count occurences of
-Tip: try "example numOccurs" to see an example.
+Tip: try "example numoccurs" to see an example.
 `)
 	case "replace":
 		globals.outputColor.Println(`
@@ -227,21 +312,46 @@ Expected number of parameters: 1
 * The seperator string
 Tip: try "example split" to see an example.
 `)
-	case "toLower":
+	case "startswith":
 		globals.outputColor.Println(`
-"toLower":
+"startswith":
+Checks whether a given string starts with a specified prefix.
+Input: a string.
+Parameters: 1
+* The prefix
+Tip: try "example startswith" to see an example.
+`)
+	case "swapcase":
+		globals.outputColor.Println(`
+"swapcase":
+Swaps uppercase letters with their lowercase counterparts and vice versa. 
+Input: a string
+Parameters: none
+Tip: try "example swapcase" to see an example.
+`)
+	case "tolower":
+		globals.outputColor.Println(`
+"tolower":
 Returns the input with all unicode letters mapped to their lower case.
 Input: a string.
 Parameters: none
-Tip: try "example toLower" to see an example.
+Tip: try "example tolower" to see an example.
 `)
-	case "toUpper":
+	case "totitle":
 		globals.outputColor.Println(`
-"toUpper":
+"totitle":
+Converts the letters at the beginning of each word to uppercase.
+Input: a string
+Parameters: none
+Tip: try "example totitle" to see an example.
+`)
+	case "toupper":
+		globals.outputColor.Println(`
+"toupper":
 Returns the input with all unicode letters mapped to their upper case.
 Input: a string.
 Parameters: none
-Tip: try "example toUpper" to see an example.
+Tip: try "example toupper" to see an example.
 `)
 	case "unique":
 		globals.outputColor.Println(`
@@ -316,6 +426,11 @@ one, two, three
 --> count lines
 3
 `)
+	case "endswith":
+		globals.outputColor.Println(`
+--> bool endswith('ab') 'kabab'
+true
+`)
 	case "fold":
 		globals.outputColor.Println(`
 --> fold(a,b -> a+b) (1, 2, 3, 4, 5)
@@ -331,47 +446,98 @@ one, two, three
 --> fold(a,b -> a+b) (1, 2, 3, 4, 5)
 15
 `)
-	case "hasMatch":
+	case "hasmatch":
 		globals.outputColor.Println(`
---> bool hasMatch('a[a-z]') "abbbjaja"
+--> bool hasmatch('a[a-z]') "abbbjaja"
 true
 `)
-	case "isDigit":
+	case "indexby":
 		globals.outputColor.Println(`
---> bool isLetter 1
+--> indexby(->[] = 'a' or [] = 'b') "this is a string"
+8
+`)
+	case "indexof":
+		globals.outputColor.Println(`
+--> indexof("s") "this is a string"
+3
+`)
+	case "isalnum":
+		globals.outputColor.Println(`
+--> bool isalnum 'abc12'
 true
---> bool isLetter 'a'
-false
---> bool isLetter 12
+--> bool isalnum 'ab$$1'
 false
 `)
-	case "isLetter":
+	case "isalpha":
 		globals.outputColor.Println(`
---> bool isLetter 1
-false
---> bool isLetter 'a'
+--> bool isalpha 'abc12'
 true
---> bool isLetter 'aa'
+--> bool isalpha 'ab$$1'
 false
 `)
-	case "isLower":
+	case "isdigit":
 		globals.outputColor.Println(`
---> bool isUpper 'A'
+--> bool isdigit 1
+true
+--> bool isdigit 'a'
 false
---> bool isUpper 'aa'
+--> bool isdigit 12
+false
+`)
+	case "isletter":
+		globals.outputColor.Println(`
+--> bool isletter 1
+false
+--> bool isletter 'a'
+true
+--> bool isletter 'aa'
+false
+`)
+	case "islower":
+		globals.outputColor.Println(`
+--> bool islower 'A'
+false
+--> bool islower 'aa'
 true
 `)
-	case "isUpper":
+	case "isnum":
 		globals.outputColor.Println(`
---> bool isUpper 'a'
+--> bool isnum 13
+true
+--> bool isnum 'ab'
 false
---> bool isUpper 'AA'
+`)
+	case "isspace":
+		globals.outputColor.Println(`
+--> bool isspace '  '
+true
+`)
+	case "istitle":
+		globals.outputColor.Println(`
+--> bool istitle 'Her Royal Highness'
+true
+`)
+	case "isupper":
+		globals.outputColor.Println(`
+--> bool isupper 'a'
+false
+--> bool isupper 'AA'
 true
 `)
 	case "join":
 		globals.outputColor.Println(`
 --> join (1, 2, 3, 4, 5)
 12345
+`)
+	case "lastindexby":
+		globals.outputColor.Println(`
+--> lastindexby(->[] = 'a' or [] = 'b') "kabab"
+4
+`)
+	case "lastindexof":
+		globals.outputColor.Println(`
+--> lastindexof("s") "this is a string"
+10
 `)
 	case "len":
 		globals.outputColor.Println(`
@@ -410,9 +576,9 @@ foo
 --> min(#len)
 foo
 `)
-	case "numOccurs":
+	case "numoccurs":
 		globals.outputColor.Println(`
---> numOccurs('fo') 'foobafo'
+--> numoccurs('fo') 'foobafo'
 2
 `)
 	case "replace":
@@ -439,14 +605,29 @@ one, four, three
 --> split(' ') "12 13 14 15"
 12, 13, 14, 15
 `)
-	case "toLower":
+	case "startswith":
 		globals.outputColor.Println(`
---> toLower "Hello World"
+--> bool startswith('tr') 'trex'
+true
+`)
+	case "swapcase":
+		globals.outputColor.Println(`
+--> swapcase "Her Royal Highness"
+hER rOYAL hIGHNESS
+`)
+	case "tolower":
+		globals.outputColor.Println(`
+--> tolower "Hello World"
 hello world
 `)
-	case "toUpper":
+	case "totitle":
 		globals.outputColor.Println(`
---> toUpper "Hello World"
+--> totitle "her royal highness"
+Her Royal Highness
+`)
+	case "toupper":
+		globals.outputColor.Println(`
+--> toupper "Hello World"
 HELLO WORLD
 `)
 	case "unique":
