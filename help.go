@@ -9,30 +9,30 @@ func showHelp(cmd string) {
 	}
 	switch s {
 	default:
-		println(`No help exists for "` + s + `".`)
+		globals.outputColor.Println(`No help exists for "` + s + `".`)
 	case "":
-		println(`Use "help xxx" to see help for a particular subject.
+		globals.outputColor.Println(`Use "help xxx" to see help for a particular subject.
 Or read the Language Specification: gitlab.com/QazmoQwerty/trex/-/blob/master/docs/trex-spec.md`)
 	case "example":
-		println(`Use "help xxx" to see help for a particular subject.`)
+		globals.outputColor.Println(`Use "example xxx" to an example of a particular subject.`)
 	case "help":
-		println(`Use "help xxx" to see help for a particular subject.`)
+		globals.outputColor.Println(`Use "help xxx" to see help for a particular subject.`)
 	case "exit":
-		println(`
+		globals.outputColor.Println(`
 "exit":
 Exits the interpreter. Identical to "quit".
 Input: none
 Parameters: none
 `)
 	case "quit":
-		println(`
+		globals.outputColor.Println(`
 "quit":
 Exits the interpreter. Identical to "exit".
 Input: a list
 Parameters: none
 `)
 	case "ascii":
-		println(`
+		globals.outputColor.Println(`
 "ascii":
 Returns a list of numbers, with every number representing the ASCII value of the corresponding character in the string.
 Input: a string
@@ -40,7 +40,7 @@ Parameters: none
 Tip: try "example ascii" to see an example.
 `)
 	case "bool":
-		println(`
+		globals.outputColor.Println(`
 "bool":
 Returns 'true' if the input is true, otherwise 'false
 Input: a string
@@ -48,7 +48,7 @@ Parameters: none
 Tip: try "example bool" to see an example.
 `)
 	case "chars":
-		println(`
+		globals.outputColor.Println(`
 "chars":
 Splits a given string into a list of single characters.
 Input: a string.
@@ -56,7 +56,7 @@ Parameters: none
 Tip: try "example chars" to see an example.
 `)
 	case "count":
-		println(`
+		globals.outputColor.Println(`
 "count":
 Returns the number of values in a given list.
 Input: a list.
@@ -64,7 +64,7 @@ Parameters: none
 Tip: try "example count" to see an example.
 `)
 	case "fold":
-		println(`
+		globals.outputColor.Println(`
 "fold":
 Applies a right fold to a list. Equivalent to 'foldr'.
 Input: a list
@@ -73,7 +73,7 @@ Parameters: 1
 Tip: try "example fold" to see an example.
 `)
 	case "foldl":
-		println(`
+		globals.outputColor.Println(`
 "foldl":
 Applies a left fold to a list.
 Input: a list
@@ -82,7 +82,7 @@ Parameters: 1
 Tip: try "example foldl" to see an example.
 `)
 	case "foldr":
-		println(`
+		globals.outputColor.Println(`
 "foldr":
 Applies a right fold to a list.
 Input: a list
@@ -91,7 +91,7 @@ Parameters: 1
 Tip: try "example foldr" to see an example.
 `)
 	case "hasMatch":
-		println(`
+		globals.outputColor.Println(`
 "hasMatch":
 Finds whether a regular expression has a match whithin a string.
 Input: a string
@@ -100,7 +100,7 @@ Parameters: 1
 Tip: try "example hasMatch" to see an example.
 `)
 	case "isDigit":
-		println(`
+		globals.outputColor.Println(`
 "isDigit":
 Checks if a string is a single digit.
 Input: a string
@@ -108,7 +108,7 @@ Parameters: none
 Tip: try "example isDigit" to see an example.
 `)
 	case "isLetter":
-		println(`
+		globals.outputColor.Println(`
 "isLetter":
 Checks if a string is a single letter.
 Input: a string
@@ -116,7 +116,7 @@ Parameters: none
 Tip: try "example isLetter" to see an example.
 `)
 	case "isLower":
-		println(`
+		globals.outputColor.Println(`
 "isLower":
 Checks if a string is comprised only of lowercase letters.
 Input: a string
@@ -124,7 +124,7 @@ Parameters: none
 Tip: try "example isLower" to see an example.
 `)
 	case "isUpper":
-		println(`
+		globals.outputColor.Println(`
 "isUpper":
 Checks if a string is comprised only of uppercase letters.
 Input: a string
@@ -132,7 +132,7 @@ Parameters: none
 Tip: try "example isUpper" to see an example.
 `)
 	case "join":
-		println(`
+		globals.outputColor.Println(`
 "join":
 Joins all elements in a list into a single string.
 Input: a list
@@ -140,7 +140,7 @@ Parameters: none
 Tip: try "example join" to see an example.
 `)
 	case "len":
-		println(`
+		globals.outputColor.Println(`
 "len":
 Returns the length of a given string.
 Input: a string.
@@ -148,7 +148,7 @@ Parameters: none
 Tip: try "example len" to see an example.
 `)
 	case "lines":
-		println(`
+		globals.outputColor.Println(`
 "lines":
 Splits a given string into lines.
 Input: a string.
@@ -156,7 +156,7 @@ Parameters: none
 Tip: try "example lines" to see an example.
 `)
 	case "matches":
-		println(`
+		globals.outputColor.Println(`
 "matches":
 Finds all matches of a regular expression whithin a string.
 Input: a string
@@ -165,7 +165,7 @@ Parameters: 1
 Tip: try "example matches" to see an example.
 `)
 	case "max":
-		println(`
+		globals.outputColor.Println(`
 "max":
 Finds the largest value in a list based on a specified order.
 Input: a list.
@@ -174,7 +174,7 @@ Parameters: 1
 Tip: try "example max" to see an example.
 `)
 	case "min":
-		println(`
+		globals.outputColor.Println(`
 "min":
 Finds the smallest value in a list based on a specified order.
 Input: a list.
@@ -183,7 +183,7 @@ Parameters: 1
 Tip: try "example min" to see an example.
 `)
 	case "numOccurs":
-		println(`
+		globals.outputColor.Println(`
 "numOccurs":
 Returns the number of times a value occurs inside a given list or string.
 Input: a list or string.
@@ -192,7 +192,7 @@ Parameters: 1
 Tip: try "example numOccurs" to see an example.
 `)
 	case "replace":
-		println(`
+		globals.outputColor.Println(`
 "replace":
 Replaces all occurences of a certain string whithin a string with another string.
 Input: a string
@@ -202,7 +202,7 @@ Parameters:
 Tip: try "example replace" to see an example.
 `)
 	case "reverse":
-		println(`
+		globals.outputColor.Println(`
 "reverse":
 Reverses a string or list.
 Input: a string or list
@@ -210,7 +210,7 @@ Parameters: none
 Tip: try "example reverse" to see an example.
 `)
 	case "sort":
-		println(`
+		globals.outputColor.Println(`
 "sort":
 Sorts a list (ascending) based on a specified order.
 Input: a list.
@@ -219,7 +219,7 @@ Parameters: 1
 Tip: try "example sort" to see an example.
 `)
 	case "split":
-		println(`
+		globals.outputColor.Println(`
 "split":
 Splits a string into a list based on a seperator.
 Input: a string.
@@ -228,7 +228,7 @@ Expected number of parameters: 1
 Tip: try "example split" to see an example.
 `)
 	case "toLower":
-		println(`
+		globals.outputColor.Println(`
 "toLower":
 Returns the input with all unicode letters mapped to their lower case.
 Input: a string.
@@ -236,7 +236,7 @@ Parameters: none
 Tip: try "example toLower" to see an example.
 `)
 	case "toUpper":
-		println(`
+		globals.outputColor.Println(`
 "toUpper":
 Returns the input with all unicode letters mapped to their upper case.
 Input: a string.
@@ -244,7 +244,7 @@ Parameters: none
 Tip: try "example toUpper" to see an example.
 `)
 	case "unique":
-		println(`
+		globals.outputColor.Println(`
 "unique":
 Returns a list of all unique values in a given list.
 Input: a list.
@@ -252,7 +252,7 @@ Parameters: none
 Tip: try "example unique" to see an example.
 `)
 	case "words":
-		println(`
+		globals.outputColor.Println(`
 "words":
 Splits a given string into words.
 Input: a string.
@@ -269,75 +269,75 @@ func showExample(cmd string) {
 	}
 	switch s {
 	default:
-		println(`No example exists for "` + s + `".`)
+		globals.outputColor.Println(`No example exists for "` + s + `".`)
 	case "":
-		println(`Try "example xxx" to see an example for a particular subject.`)
+		globals.outputColor.Println(`Try "example xxx" to see an example for a particular subject.`)
 	case "example":
-		println(`
+		globals.outputColor.Println(`
 --> example example
-println("[Do you really need to see this?]
+[Do you really need to see this?]
 `)
 	case "help":
-		println(`
+		globals.outputColor.Println(`
 --> help example
 [help for for how to use the example command]
 `)
 	case "quit":
-		println(`
+		globals.outputColor.Println(`
 --> quit
 [trex will exit]
 `)
 	case "exit":
-		println(`
+		globals.outputColor.Println(`
 --> exit
 [trex will exit]
 `)
 	case "ascii":
-		println(`
+		globals.outputColor.Println(`
 --> ascii 0123
 48, 49, 50, 51
 `)
 	case "bool":
-		println(`
+		globals.outputColor.Println(`
 --> bool (1 = 2)
 false
 --> bool (12 > 4)
 true
 `)
 	case "chars":
-		println(`
+		globals.outputColor.Println(`
 --> chars 12343
 1, 2, 3, 4, 3
 `)
 	case "count":
-		println(`
+		globals.outputColor.Println(`
 --> lines
 one, two, three
 --> count lines
 3
 `)
 	case "fold":
-		println(`
+		globals.outputColor.Println(`
 --> fold(a,b -> a+b) (1, 2, 3, 4, 5)
 15
 `)
 	case "foldl":
-		println(`
+		globals.outputColor.Println(`
 --> fold(a,b -> a+b) (1, 2, 3, 4, 5)
 15
 `)
 	case "foldr":
-		println(`
+		globals.outputColor.Println(`
 --> fold(a,b -> a+b) (1, 2, 3, 4, 5)
 15
 `)
 	case "hasMatch":
-		println(`
+		globals.outputColor.Println(`
 --> bool hasMatch('a[a-z]') "abbbjaja"
 true
 `)
 	case "isDigit":
-		println(`
+		globals.outputColor.Println(`
 --> bool isLetter 1
 true
 --> bool isLetter 'a'
@@ -346,7 +346,7 @@ false
 false
 `)
 	case "isLetter":
-		println(`
+		globals.outputColor.Println(`
 --> bool isLetter 1
 false
 --> bool isLetter 'a'
@@ -355,31 +355,31 @@ true
 false
 `)
 	case "isLower":
-		println(`
+		globals.outputColor.Println(`
 --> bool isUpper 'A'
 false
 --> bool isUpper 'aa'
 true
 `)
 	case "isUpper":
-		println(`
+		globals.outputColor.Println(`
 --> bool isUpper 'a'
 false
 --> bool isUpper 'AA'
 true
 `)
 	case "join":
-		println(`
+		globals.outputColor.Println(`
 --> join (1, 2, 3, 4, 5)
 12345
 `)
 	case "len":
-		println(`
+		globals.outputColor.Println(`
 --> len "example"
 7
 `)
 	case "lines":
-		println(`
+		globals.outputColor.Println(`
 --> []
 one
 two
@@ -388,12 +388,12 @@ three
 one, two, three
 `)
 	case "matches":
-		println(`
+		globals.outputColor.Println(`
 --> matches('a[a-z]') "abbbjaja"
 ab, aj
 `)
 	case "max":
-		println(`
+		globals.outputColor.Println(`
 --> []
 word
 another
@@ -402,7 +402,7 @@ foo
 another
 `)
 	case "min":
-		println(`
+		globals.outputColor.Println(`
 --> []
 word
 another
@@ -411,52 +411,52 @@ foo
 foo
 `)
 	case "numOccurs":
-		println(`
+		globals.outputColor.Println(`
 --> numOccurs('fo') 'foobafo'
 2
 `)
 	case "replace":
-		println(`
+		globals.outputColor.Println(`
 --> replace('a', 'AA') 'a bar'
 AA bAAr
 `)
 	case "reverse":
-		println(`
+		globals.outputColor.Println(`
 --> reverse (1, 2, 3, 4)
 4, 3, 2, 1
 --> reverse 1234
 4321
 `)
 	case "sort":
-		println(`
+		globals.outputColor.Println(`
 --> words
 one, three, four
 --> sort(#len) words
 one, four, three
 `)
 	case "split":
-		println(`
+		globals.outputColor.Println(`
 --> split(' ') "12 13 14 15"
 12, 13, 14, 15
 `)
 	case "toLower":
-		println(`
+		globals.outputColor.Println(`
 --> toLower "Hello World"
 hello world
 `)
 	case "toUpper":
-		println(`
+		globals.outputColor.Println(`
 --> toUpper "Hello World"
 HELLO WORLD
 `)
 	case "unique":
-		println(`
+		globals.outputColor.Println(`
 --> foo => 1, 2, 3, 4, 4, 3, 2, 1, 3, 7
 --> unique foo
 1, 2, 3, 4, 7
 `)
 	case "words":
-		println(`
+		globals.outputColor.Println(`
 --> foo => "this is a sentence"
 --> words foo
 this, is, a, sentence

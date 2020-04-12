@@ -81,32 +81,32 @@ examplefunc = """func showExample(cmd string) {
 	}
 	switch s {
 	default:
-		println(`No example exists for "` + s + `".`)
+		globals.outputColor.Println(`No example exists for "` + s + `".`)
 	case "":
-		println(`Try "example xxx" to see an example for a particular subject.`)
+		globals.outputColor.Println(`Try "example xxx" to see an example for a particular subject.`)
 	case "example":
-		println(`
+		globals.outputColor.Println(`
 --> example example
-println("[Do you really need to see this?]
+[Do you really need to see this?]
 `)
 	case "help":
-		println(`
+		globals.outputColor.Println(`
 --> help example
 [help for for how to use the example command]
 `)
 	case "quit":
-		println(`
+		globals.outputColor.Println(`
 --> quit
 [trex will exit]
 `)
 	case "exit":
-		println(`
+		globals.outputColor.Println(`
 --> exit
 [trex will exit]
 `)
 """
 for i in items:
-    examplefunc += '\tcase "' + i.name + '":\n\t\tprintln(`\n' + i.example + '\n`)\n'
+    examplefunc += '\tcase "' + i.name + '":\n\t\tglobals.outputColor.Println(`\n' + i.example + '\n`)\n'
 examplefunc += "\t}\n}\n"
 
 helpfunc = """func showHelp(cmd string) {
@@ -116,23 +116,23 @@ helpfunc = """func showHelp(cmd string) {
 	}
 	switch s {
 	default:
-		println(`No help exists for "` + s + `".`)
+		globals.outputColor.Println(`No help exists for "` + s + `".`)
 	case "":
-		println(`Use "help xxx" to see help for a particular subject.
+		globals.outputColor.Println(`Use "help xxx" to see help for a particular subject.
 Or read the Language Specification: gitlab.com/QazmoQwerty/trex/-/blob/master/docs/trex-spec.md`)
 	case "example":
-		println(`Use "help xxx" to see help for a particular subject.`)
+		globals.outputColor.Println(`Use "example xxx" to an example of a particular subject.`)
 	case "help":
-		println(`Use "help xxx" to see help for a particular subject.`)
+		globals.outputColor.Println(`Use "help xxx" to see help for a particular subject.`)
 	case "exit":
-		println(`
+		globals.outputColor.Println(`
 "exit":
 Exits the interpreter. Identical to "quit".
 Input: none
 Parameters: none
 `)
 	case "quit":
-		println(`
+		globals.outputColor.Println(`
 "quit":
 Exits the interpreter. Identical to "exit".
 Input: a list
@@ -140,7 +140,7 @@ Parameters: none
 `)
 """
 for i in items:
-    helpfunc += '\tcase "' + i.name + '":\n\t\tprintln(`\n' + \
+    helpfunc += '\tcase "' + i.name + '":\n\t\tglobals.outputColor.Println(`\n' + \
                 '"' + i.name + '":\n' + i.explanation + \
                 '\nTip: try "example ' + i.name + '" to see an example.' + '\n`)\n'
 helpfunc += "\t}\n}\n"
