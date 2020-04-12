@@ -31,6 +31,22 @@ Exits the interpreter. Identical to "exit".
 Input: a list
 Parameters: none
 `)
+	case "ascii":
+		println(`
+"ascii":
+Returns a list of numbers, with every number representing the ASCII value of the corresponding character in the string.
+Input: a string
+Parameters: none
+Tip: try "example ascii" to see an example.
+`)
+	case "bool":
+		println(`
+"bool":
+Returns 'true' if the input is true, otherwise 'false
+Input: a string
+Parameters: none
+Tip: try "example bool" to see an example.
+`)
 	case "chars":
 		println(`
 "chars":
@@ -47,6 +63,82 @@ Input: a list.
 Parameters: none
 Tip: try "example count" to see an example.
 `)
+	case "fold":
+		println(`
+"fold":
+Applies a right fold to a list. Equivalent to 'foldr'.
+Input: a list
+Parameters: 1
+* The definition by which to fold fold the values
+Tip: try "example fold" to see an example.
+`)
+	case "foldl":
+		println(`
+"foldl":
+Applies a left fold to a list.
+Input: a list
+Parameters: 1
+* The definition by which to fold fold the values
+Tip: try "example foldl" to see an example.
+`)
+	case "foldr":
+		println(`
+"foldr":
+Applies a right fold to a list.
+Input: a list
+Parameters: 1
+* The definition by which to fold fold the values
+Tip: try "example foldr" to see an example.
+`)
+	case "hasMatch":
+		println(`
+"hasMatch":
+Finds whether a regular expression has a match whithin a string.
+Input: a string
+Parameters: 1
+* The regular expression to match 
+Tip: try "example hasMatch" to see an example.
+`)
+	case "isDigit":
+		println(`
+"isDigit":
+Checks if a string is a single digit.
+Input: a string
+Parameters: none
+Tip: try "example isDigit" to see an example.
+`)
+	case "isLetter":
+		println(`
+"isLetter":
+Checks if a string is a single letter.
+Input: a string
+Parameters: none
+Tip: try "example isLetter" to see an example.
+`)
+	case "isLower":
+		println(`
+"isLower":
+Checks if a string is comprised only of lowercase letters.
+Input: a string
+Parameters: none
+Tip: try "example isLower" to see an example.
+`)
+	case "isUpper":
+		println(`
+"isUpper":
+Checks if a string is comprised only of uppercase letters.
+Input: a string
+Parameters: none
+Tip: try "example isUpper" to see an example.
+`)
+	case "join":
+		println(`
+"join":
+Joins all elements in a list into a single string.
+Input: a list
+Parameters: none
+Tip: try "example join" to see an example.
+`)
 	case "len":
 		println(`
 "len":
@@ -62,6 +154,15 @@ Splits a given string into lines.
 Input: a string.
 Parameters: none
 Tip: try "example lines" to see an example.
+`)
+	case "matches":
+		println(`
+"matches":
+Finds all matches of a regular expression whithin a string.
+Input: a string
+Parameters: 1
+* The regular expression to match 
+Tip: try "example matches" to see an example.
 `)
 	case "max":
 		println(`
@@ -90,6 +191,24 @@ Parameters: 1
 * the value to count occurences of
 Tip: try "example numOccurs" to see an example.
 `)
+	case "replace":
+		println(`
+"replace":
+Replaces all occurences of a certain string whithin a string with another string.
+Input: a string
+Parameters:
+* the string to search for 
+* the string to replace with
+Tip: try "example replace" to see an example.
+`)
+	case "reverse":
+		println(`
+"reverse":
+Reverses a string or list.
+Input: a string or list
+Parameters: none
+Tip: try "example reverse" to see an example.
+`)
 	case "sort":
 		println(`
 "sort":
@@ -102,9 +221,10 @@ Tip: try "example sort" to see an example.
 	case "split":
 		println(`
 "split":
-TODO - explanation for "split"
+Splits a string into a list based on a seperator.
 Input: a string.
 Expected number of parameters: 1
+* The seperator string
 Tip: try "example split" to see an example.
 `)
 	case "toLower":
@@ -172,6 +292,18 @@ println("[Do you really need to see this?]
 --> exit
 [trex will exit]
 `)
+	case "ascii":
+		println(`
+--> ascii 0123
+48, 49, 50, 51
+`)
+	case "bool":
+		println(`
+--> bool (1 = 2)
+false
+--> bool (12 > 4)
+true
+`)
 	case "chars":
 		println(`
 --> chars 12343
@@ -183,6 +315,63 @@ println("[Do you really need to see this?]
 one, two, three
 --> count lines
 3
+`)
+	case "fold":
+		println(`
+--> fold(a,b -> a+b) (1, 2, 3, 4, 5)
+15
+`)
+	case "foldl":
+		println(`
+--> fold(a,b -> a+b) (1, 2, 3, 4, 5)
+15
+`)
+	case "foldr":
+		println(`
+--> fold(a,b -> a+b) (1, 2, 3, 4, 5)
+15
+`)
+	case "hasMatch":
+		println(`
+--> bool hasMatch('a[a-z]') "abbbjaja"
+true
+`)
+	case "isDigit":
+		println(`
+--> bool isLetter 1
+true
+--> bool isLetter 'a'
+false
+--> bool isLetter 12
+false
+`)
+	case "isLetter":
+		println(`
+--> bool isLetter 1
+false
+--> bool isLetter 'a'
+true
+--> bool isLetter 'aa'
+false
+`)
+	case "isLower":
+		println(`
+--> bool isUpper 'A'
+false
+--> bool isUpper 'aa'
+true
+`)
+	case "isUpper":
+		println(`
+--> bool isUpper 'a'
+false
+--> bool isUpper 'AA'
+true
+`)
+	case "join":
+		println(`
+--> join (1, 2, 3, 4, 5)
+12345
 `)
 	case "len":
 		println(`
@@ -197,6 +386,11 @@ two
 three
 --> lines
 one, two, three
+`)
+	case "matches":
+		println(`
+--> matches('a[a-z]') "abbbjaja"
+ab, aj
 `)
 	case "max":
 		println(`
@@ -221,6 +415,18 @@ foo
 --> numOccurs('fo') 'foobafo'
 2
 `)
+	case "replace":
+		println(`
+--> replace('a', 'AA') 'a bar'
+AA bAAr
+`)
+	case "reverse":
+		println(`
+--> reverse (1, 2, 3, 4)
+4, 3, 2, 1
+--> reverse 1234
+4321
+`)
 	case "sort":
 		println(`
 --> words
@@ -230,8 +436,8 @@ one, four, three
 `)
 	case "split":
 		println(`
---> "example?"
-example?
+--> split(' ') "12 13 14 15"
+12, 13, 14, 15
 `)
 	case "toLower":
 		println(`

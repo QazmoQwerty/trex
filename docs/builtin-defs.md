@@ -2,19 +2,61 @@
 
 ## Table of Contents:
 
-1. [chars](#chars)
-2. [count](#count)
-3. [len](#len)
-4. [lines](#lines)
-5. [max](#max)
-6. [min](#min)
-7. [numOccurs](#numOccurs)
-8. [sort](#sort)
-9. [split](#split)
-10. [toLower](#toLower)
-11. [toUpper](#toUpper)
-12. [unique](#unique)
-13. [words](#words)
+1. [ascii](#ascii)
+2. [bool](#bool)
+3. [chars](#chars)
+4. [count](#count)
+5. [fold](#fold)
+6. [foldl](#foldl)
+7. [foldr](#foldr)
+8. [hasMatch](#hasMatch)
+9. [isDigit](#isDigit)
+10. [isLetter](#isLetter)
+11. [isLower](#isLower)
+12. [isUpper](#isUpper)
+13. [join](#join)
+14. [len](#len)
+15. [lines](#lines)
+16. [matches](#matches)
+17. [max](#max)
+18. [min](#min)
+19. [numOccurs](#numOccurs)
+20. [replace](#replace)
+21. [reverse](#reverse)
+22. [sort](#sort)
+23. [split](#split)
+24. [toLower](#toLower)
+25. [toUpper](#toUpper)
+26. [unique](#unique)
+27. [words](#words)
+
+## ascii
+
+Returns a list of numbers, with every number representing the ASCII value of the corresponding character in the string.
+
+Input: a string
+
+Parameters: none
+
+```
+--> ascii 0123
+48, 49, 50, 51
+```
+
+## bool
+
+Returns 'true' if the input is true, otherwise 'false
+
+Input: a string
+
+Parameters: none
+
+```
+--> bool (1 = 2)
+false
+--> bool (12 > 4)
+true
+```
 
 ## chars
 
@@ -42,6 +84,143 @@ Parameters: none
 one, two, three
 --> count lines
 3
+```
+
+## fold
+
+Applies a right fold to a list. Equivalent to 'foldr'.
+
+Input: a list
+
+Parameters: 1
+
+* The definition by which to fold fold the values
+
+```
+--> fold(a,b -> a+b) (1, 2, 3, 4, 5)
+15
+```
+
+## foldl
+
+Applies a left fold to a list.
+
+Input: a list
+
+Parameters: 1
+
+* The definition by which to fold fold the values
+
+```
+--> fold(a,b -> a+b) (1, 2, 3, 4, 5)
+15
+```
+
+## foldr
+
+Applies a right fold to a list.
+
+Input: a list
+
+Parameters: 1
+
+* The definition by which to fold fold the values
+
+```
+--> fold(a,b -> a+b) (1, 2, 3, 4, 5)
+15
+```
+
+## hasMatch
+
+Finds whether a regular expression has a match whithin a string.
+
+Input: a string
+
+Parameters: 1
+
+* The regular expression to match 
+
+```
+--> bool hasMatch('a[a-z]') "abbbjaja"
+true
+```
+
+## isDigit
+
+Checks if a string is a single digit.
+
+Input: a string
+
+Parameters: none
+
+```
+--> bool isLetter 1
+true
+--> bool isLetter 'a'
+false
+--> bool isLetter 12
+false
+```
+
+## isLetter
+
+Checks if a string is a single letter.
+
+Input: a string
+
+Parameters: none
+
+```
+--> bool isLetter 1
+false
+--> bool isLetter 'a'
+true
+--> bool isLetter 'aa'
+false
+```
+
+## isLower
+
+Checks if a string is comprised only of lowercase letters.
+
+Input: a string
+
+Parameters: none
+
+```
+--> bool isUpper 'A'
+false
+--> bool isUpper 'aa'
+true
+```
+
+## isUpper
+
+Checks if a string is comprised only of uppercase letters.
+
+Input: a string
+
+Parameters: none
+
+```
+--> bool isUpper 'a'
+false
+--> bool isUpper 'AA'
+true
+```
+
+## join
+
+Joins all elements in a list into a single string.
+
+Input: a list
+
+Parameters: none
+
+```
+--> join (1, 2, 3, 4, 5)
+12345
 ```
 
 ## len
@@ -72,6 +251,21 @@ two
 three
 --> lines
 one, two, three
+```
+
+## matches
+
+Finds all matches of a regular expression whithin a string.
+
+Input: a string
+
+Parameters: 1
+
+* The regular expression to match 
+
+```
+--> matches('a[a-z]') "abbbjaja"
+ab, aj
 ```
 
 ## max
@@ -127,6 +321,38 @@ Parameters: 1
 2
 ```
 
+## replace
+
+Replaces all occurences of a certain string whithin a string with another string.
+
+Input: a string
+
+Parameters:
+
+* the string to search for 
+
+* the string to replace with
+
+```
+--> replace('a', 'AA') 'a bar'
+AA bAAr
+```
+
+## reverse
+
+Reverses a string or list.
+
+Input: a string or list
+
+Parameters: none
+
+```
+--> reverse (1, 2, 3, 4)
+4, 3, 2, 1
+--> reverse 1234
+4321
+```
+
 ## sort
 
 Sorts a list (ascending) based on a specified order.
@@ -146,15 +372,17 @@ one, four, three
 
 ## split
 
-TODO - explanation for "split"
+Splits a string into a list based on a seperator.
 
 Input: a string.
 
 Expected number of parameters: 1
 
+* The seperator string
+
 ```
---> "example?"
-example?
+--> split(' ') "12 13 14 15"
+12, 13, 14, 15
 ```
 
 ## toLower

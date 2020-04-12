@@ -320,18 +320,26 @@ The following are binary operators:
 |.\>.            |   lexical greater than|
 |.\>=.           |   lexical greater or equal to|
 |=               |   equal|
-|!=              |   not equal|
+|!=              | not equal |
 |..              |   range|
 |and             |   logical and|
 |or              |   logical or|
 |in              |   positive membership test|
 |not in          |   negative membership test|
 
-The operands of the numeric operators, as well as the right operand of the string multiplication operator, MUST be convertible to a number.
 
-The comparison operators will compare the strings based on lexical order.
+* The operands of the numeric operators, the range operator, and the right operand of the string multiplication operator, MUST be convertible to a number.
 
-NOTE: all binary operations only accept strings as their operands.
+* All binary operations only accept strings as their operands.
+
+* The range operator 'a..b' returns a list of numbers from a to b, excluding the larger number.
+
+```
+>>> 0..5
+0, 1, 2, 3, 4
+>>> 5..0
+4, 3, 2, 1, 0
+```
 
 ## Unary Operators
 

@@ -123,10 +123,12 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"isUpper": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
+		// TODO - fix this to fit docs.txt
 		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsUpper([]rune(input.String())[0]))
 	},
 	"isLower": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
+		// TODO - fix this to fit docs.txt
 		return createBoolValue(len([]rune(input.String())) == 1 && unicode.IsLower([]rune(input.String())[0]))
 	},
 	"isDigit": func(input Value, params ListValue, pos Position) Value {
@@ -237,5 +239,12 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	"replace": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(2, params, pos)
 		return StringValue{strings.ReplaceAll(input.String(), params.vals[0].String(), params.vals[1].String())}
+	},
+	"bool": func(input Value, params ListValue, pos Position) Value {
+		assertParamsNum(0, params, pos)
+		if input.String() != "" {
+			return StringValue{"true"}
+		}
+		return StringValue{"false"}
 	},
 }
