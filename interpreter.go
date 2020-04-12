@@ -165,7 +165,7 @@ func atoi(str string, pos Position) int {
 	ret, err := strconv.Atoi(str)
 	if err != nil {
 		if len(str) > 30 {
-			panic(myErr{strconv.QuoteToGraphic(str[:30]) + `... cannot be converted to a number (full value was not shown due to length)`, pos, ERR_INTERPRETER})
+			panic(myErr{strconv.QuoteToGraphic(str[:30]) + `... cannot be converted to a number\n Note: full value was not shown due to length.`, pos, ERR_INTERPRETER})
 		} else {
 			panic(myErr{strconv.QuoteToGraphic(str) + ` cannot be converted to a number`, pos, ERR_INTERPRETER})
 		}
@@ -458,6 +458,16 @@ func (this FunctionCall) interpret(input Value) Value {
 
 }
 
+func assertInRange(idx, len int, pos Position) {
+	if idx < 0 || idx >= len {
+		panic(myErr{
+			"list index out of range [" + strconv.Itoa(idx) + "] with length " + strconv.Itoa(len),
+			pos,
+			ERR_INTERPRETER,
+		})
+	}
+}
+
 func (this Subscript) interpret(input Value) Value {
 	var val Value
 	if this.expression == nil {
@@ -475,6 +485,7 @@ func (this Subscript) interpret(input Value) Value {
 		if idx < 0 {
 			idx += len(vals)
 		}
+		assertInRange(idx, len(vals), this.idx1.getPosition())
 		return vals[idx]
 	}
 
@@ -486,12 +497,14 @@ func (this Subscript) interpret(input Value) Value {
 		if low < 0 {
 			low += len(vals)
 		}
+		assertInRange(low, len(vals), this.idx1.getPosition())
 	}
 	if highStr != "" {
 		high = atoi(highStr, this.idx2.getPosition())
 		if high < 0 {
 			high += len(vals)
 		}
+		assertInRange(high, len(vals), this.idx2.getPosition())
 	}
 
 	if this.idx3 == nil {
@@ -517,13 +530,13 @@ func (this Subscript) interpret(input Value) Value {
 		newVals := ListValue{}
 		if step > 0 {
 			for i := low; i < high; i++ {
-				if i%step == 0 {
+				if (i-low)%step == 0 {
 					newVals.vals = append(newVals.vals, vals[i])
 				}
 			}
 		} else {
 			for i := high - 1; i >= low; i-- {
-				if (len(vals)-1-i)%step == 0 {
+				if (len(vals)-1-i+low)%step == 0 {
 					newVals.vals = append(newVals.vals, vals[i])
 				}
 			}
