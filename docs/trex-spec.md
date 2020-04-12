@@ -117,6 +117,7 @@ Number literals can also be in hexadecimal, in which case they will be converted
 \t
 \48		// = '0' (the unicode value of 48)
 \x31	// = '1' (the unicode value of 0x31)
+\x30\x31\x32  // = '012' (you can string together escaped characters)
 ```
 
 ## Programs

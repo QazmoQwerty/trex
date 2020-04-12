@@ -126,6 +126,8 @@ func getOperator(str string) Operator {
 		return Operator{TT_MULTI_LINE_COMMENT_OPEN, str, false, 0, false}
 	case "*/":
 		return Operator{TT_MULTI_LINE_COMMENT_CLOSE, str, false, 0, false}
+	case "`":
+		return Operator{TT_TICK_QUOTE, str, false, 0, false}
 	case "'":
 		return Operator{TT_SINGLE_QUOTE, str, false, 0, false}
 	case "\"":
@@ -227,6 +229,8 @@ func getOperatorByType(op TokenType) Operator {
 		return Operator{TT_MULTI_LINE_COMMENT_OPEN, "/*", false, 0, false}
 	case TT_MULTI_LINE_COMMENT_CLOSE:
 		return Operator{TT_MULTI_LINE_COMMENT_CLOSE, "*/", false, 0, false}
+	case TT_TICK_QUOTE:
+		return Operator{TT_TICK_QUOTE, "`", false, 0, false}
 	case TT_SINGLE_QUOTE:
 		return Operator{TT_SINGLE_QUOTE, "'", false, 0, false}
 	case TT_DOUBLE_QUOTE:

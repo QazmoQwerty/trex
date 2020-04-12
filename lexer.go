@@ -170,21 +170,13 @@ func lex(str string, tokens *TokenQueue) {
 			case TT_UNKNOWN:
 				tok.pos.end = pos
 				panic(myErr{"Operator \"" + tok.data + "\" does not exist.", tok.pos, ERR_LEXER})
-			case TT_SINGLE_QUOTE, TT_DOUBLE_QUOTE:
+			case TT_SINGLE_QUOTE, TT_DOUBLE_QUOTE, TT_TICK_QUOTE:
 				tok.ty = TT_LITERAL
 				close := rune(tok.data[0])
 				tok.data = ""
 
-				for idx < len(runes) {
-					if runes[idx] == close {
-						count := 0
-						for count < idx && runes[idx-count-1] == '\\' {
-							count++
-						}
-						if count%2 == 0 {
-							break
-						}
-					} else if runes[idx] == '\n' {
+				for idx < len(runes) && runes[idx] != close {
+					if runes[idx] == '\n' {
 						lineCount++
 						pos = 0
 					}
@@ -215,40 +207,49 @@ func lex(str string, tokens *TokenQueue) {
 				outputToken = false
 			}
 		case CT_ESCAPE:
+			idx--
+			pos--
+			tok.data = ""
 			tok.ty = TT_LITERAL
-			c := runes[idx]
-			idx++
-			pos++
-			switch c {
-			case 'n':
-				tok.data = "\n"
-			case 't':
-				tok.data = "\t"
-			case 'x':
-				str = "0x"
-				for runeType(runes[idx]) == CT_DIGIT || runeType(runes[idx]) == CT_LETTER {
-					str += string(runes[idx])
-					pos++
-					idx++
-				}
-				tok.pos.end = pos
-				tok.data = string(atoi(str, tok.pos))
-				break
-			default:
-				if '0' <= c && c <= '9' {
-					str = string(c)
+			for idx < len(runes) && runes[idx] == '\\' {
+				startPos := pos
+				idx++
+				pos++
+				c := runes[idx]
+				idx++
+				pos++
+				switch c {
+				case 'n':
+					tok.data += "\n"
+				case 't':
+					tok.data += "\t"
+				case 'x':
+					str = "0x"
 					for runeType(runes[idx]) == CT_DIGIT || runeType(runes[idx]) == CT_LETTER {
 						str += string(runes[idx])
 						pos++
 						idx++
 					}
 					tok.pos.end = pos
-					tok.data = string(atoi(str, tok.pos))
-				} else {
-					tok.pos.end = pos
-					panic(myErr{"Invalid escape sequence.", tok.pos, ERR_LEXER})
+					tok.data += string(atoi(str, Position{lineCount, startPos, pos}))
+					break
+				default:
+					if '0' <= c && c <= '9' {
+						str = string(c)
+						for runeType(runes[idx]) == CT_DIGIT || runeType(runes[idx]) == CT_LETTER {
+							str += string(runes[idx])
+							pos++
+							idx++
+						}
+						tok.pos.end = pos
+						tok.data += string(atoi(str, Position{lineCount, startPos, pos}))
+					} else {
+						tok.pos.end = pos
+						panic(myErr{"Invalid escape sequence.", Position{lineCount, startPos, pos}, ERR_LEXER})
+					}
 				}
 			}
+
 			break
 		case CT_ILLEGAL:
 			panic(myErr{`unknown character ` + strconv.QuoteRune(curr), tok.pos, ERR_LEXER})
