@@ -274,11 +274,19 @@ func (this BinaryOperation) interpret(input Value) Value {
 	case TT_RANGE:
 		low := atoi(left.String(), leftPos)
 		high := atoi(right.String(), rightPos)
-		list := ListValue{}
-		for i := low; i < high; i++ {
-			list.vals = append(list.vals, StringValue{strconv.Itoa(i)})
+		if low > high {
+			list := ListValue{make([]Value, low-high)}
+			for i := 0; i < low-high; i++ {
+				list.vals[i] = StringValue{strconv.Itoa(low - i - 1)}
+			}
+			return list
+		} else {
+			list := ListValue{make([]Value, high-low)}
+			for i := 0; i+low < high; i++ {
+				list.vals[i] = StringValue{strconv.Itoa(i + low)}
+			}
+			return list
 		}
-		return list
 	case TT_SMALLER:
 		return createBoolValue(atoi(left.String(), leftPos) < atoi(right.String(), rightPos))
 	case TT_SMALLER_EQUAL:
