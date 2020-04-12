@@ -162,7 +162,8 @@ func createBoolValue(b bool) StringValue {
 }
 
 func atoi(str string, pos Position) int {
-	ret, err := strconv.Atoi(str)
+	i, err := strconv.ParseInt(str, 0, 32)
+	ret := int(i)
 	if err != nil {
 		if len(str) > 30 {
 			panic(myErr{strconv.QuoteToGraphic(str[:30]) + `... cannot be converted to a number\n Note: full value was not shown due to length.`, pos, ERR_INTERPRETER})

@@ -111,12 +111,23 @@ func lex(str string, tokens *TokenQueue) {
 				outputToken = false
 			}
 		case CT_DIGIT:
-			for idx < len(runes) && runeType(runes[idx]) == CT_DIGIT {
-				tok.data += string(runes[idx])
-				idx++
-				pos++
-			}
 			tok.ty = TT_LITERAL
+			if idx < len(runes) && curr == '0' && (runes[idx] == 'x' || runes[idx] == 'X') {
+				idx++
+				tok.data = "0x"
+				for idx < len(runes) && (runeType(runes[idx]) == CT_DIGIT || runeType(runes[idx]) == CT_LETTER) {
+					tok.data += string(runes[idx])
+					idx++
+					pos++
+				}
+				tok.data = strconv.Itoa(atoi(tok.data, tok.pos))
+			} else {
+				for idx < len(runes) && runeType(runes[idx]) == CT_DIGIT {
+					tok.data += string(runes[idx])
+					idx++
+					pos++
+				}
+			}
 			tok.pos.end = pos
 		case CT_LETTER:
 			for idx < len(runes) && (runeType(runes[idx]) == CT_DIGIT || runeType(runes[idx]) == CT_LETTER) {
@@ -205,16 +216,39 @@ func lex(str string, tokens *TokenQueue) {
 			}
 		case CT_ESCAPE:
 			tok.ty = TT_LITERAL
-			switch runes[idx] {
+			c := runes[idx]
+			idx++
+			pos++
+			switch c {
 			case 'n':
 				tok.data = "\n"
 			case 't':
 				tok.data = "\t"
+			case 'x':
+				str = "0x"
+				for runeType(runes[idx]) == CT_DIGIT || runeType(runes[idx]) == CT_LETTER {
+					str += string(runes[idx])
+					pos++
+					idx++
+				}
+				tok.pos.end = pos
+				tok.data = string(atoi(str, tok.pos))
+				break
 			default:
-				panic(myErr{"Invalid escape sequence.", tok.pos, ERR_LEXER})
-				// TODO - more special characters (EG \x4F)
+				if '0' <= c && c <= '9' {
+					str = string(c)
+					for runeType(runes[idx]) == CT_DIGIT || runeType(runes[idx]) == CT_LETTER {
+						str += string(runes[idx])
+						pos++
+						idx++
+					}
+					tok.pos.end = pos
+					tok.data = string(atoi(str, tok.pos))
+				} else {
+					tok.pos.end = pos
+					panic(myErr{"Invalid escape sequence.", tok.pos, ERR_LEXER})
+				}
 			}
-			idx++
 			break
 		case CT_ILLEGAL:
 			panic(myErr{`unknown character ` + strconv.QuoteRune(curr), tok.pos, ERR_LEXER})

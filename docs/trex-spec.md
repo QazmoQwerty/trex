@@ -75,9 +75,10 @@ The following character sequences are turned into operators:
 ```EBNF
 +   -   *   /   %   ..  (   )
 #   ,   :   =>  <<  **  {   }
-=   !=  <   <=  >   >=  [   ]
-not for or	in  ->  .<. .<=.
-and   if    else    .>. .>=.
+=   !=  <  	<=  >   >=  [   ]
+-> .<. .>. .<=.    .>=.
+not	for	or 	from
+and	if 	in 	else
 ```
 
 ### Literals
@@ -101,14 +102,21 @@ All literals are treated as strings. There are 3 types of literals:
 span multiple lines"
 ```
 2. Number literals
+
+Number literals can also be in hexadecimal, in which case they will be converted to decimal.
+
 ```
 123
+0xF  	// = 16
+0xf1 	// = 241
 ```
 
 3. Character literals
 ```
 \n
 \t
+\48		// = '0' (the unicode value of 48)
+\x31	// = '1' (the unicode value of 0x31)
 ```
 
 ## Programs
@@ -361,10 +369,9 @@ ForClause       = identifier "in" Expression;
 Comprehensions provide a concise way to create lists.
 
 ```
->>> foo => 0123
->>> i ** 2 for i in foo
+>>> i ** 2 for i in 0..4
 00, 11, 22, 33
->>> x*y for x in foo, y in foo if x*y != 0
+>>> x*y for x in 0..4, y in 0..4 if x*y != 0
 1, 2, 3, 2, 4, 6, 3, 6, 9
 ```
 
