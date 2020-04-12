@@ -151,6 +151,8 @@ func interpretFile(input string, file string) {
 func startInterpreter(input string) {
 	fmt.Printf("Trex %s (%s)\n", version, gitlabLink)
 	fmt.Printf("Type \"help\" for help, \"exit\" to exit.\n")
+	globals.liner.AppendHistory("exit")
+	globals.liner.AppendHistory("help")
 	lineCount = 1
 	globals.codeFile = ""
 	for true {
