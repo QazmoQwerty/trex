@@ -349,7 +349,18 @@ func exitBlock() {
 	values = values[:len(values)-1]
 }
 
-func valToList(arr Value, input Value) []Value {
+func valAsList(val Value) ListValue {
+	switch v := val.(type) {
+	case ListValue:
+		return v
+	case NullValue:
+		return ListValue{}
+	default:
+		return ListValue{[]Value{val}}
+	}
+}
+
+func valToList(arr Value) []Value {
 	list := []Value{}
 	switch t := arr.(type) {
 	default:
@@ -390,7 +401,7 @@ func (this Comprehension) runComprehension(input Value, idx int, list []Value) L
 }
 
 func (this Comprehension) interpret(input Value) Value {
-	return this.runComprehension(input, 0, valToList(this.fors[0].exp.interpret(input), input))
+	return this.runComprehension(input, 0, valToList(this.fors[0].exp.interpret(input)))
 }
 
 func (this ExpressionList) interpret(input Value) Value {
@@ -457,7 +468,7 @@ func (this Subscript) interpret(input Value) Value {
 	if this.idx1 == nil && this.idx2 == nil && this.idx3 == nil {
 		return val
 	}
-	vals := valToList(val, input)
+	vals := valToList(val)
 
 	if this.idx2 == nil && this.idx3 == nil {
 		idx := atoi(this.idx1.interpret(input).String(), this.idx1.getPosition())

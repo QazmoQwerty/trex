@@ -11,29 +11,11 @@ import (
 var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	"len": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
-		switch v := input.(type) {
-		case ListValue:
-			return StringValue{strconv.Itoa(len(v.vals))}
-		case StringValue:
-			return StringValue{strconv.Itoa(len(v.val))}
-		case NullValue:
-			return StringValue{"0"}
-		case DefinitionValue, PredeclaredDefinitionValue:
-			return StringValue{"1"}
-		}
-		return nil
+		return StringValue{strconv.Itoa(len(input.String()))}
 	},
 	"count": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
-		switch v := input.(type) {
-		case ListValue:
-			return StringValue{strconv.Itoa(len(v.vals))}
-		case StringValue, DefinitionValue, PredeclaredDefinitionValue:
-			return StringValue{"1"}
-		case NullValue:
-			return StringValue{"0"}
-		}
-		return nil
+		return StringValue{strconv.Itoa(len(valAsList(input).vals))}
 	},
 	"split": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
@@ -71,10 +53,9 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"min": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
-		list := input.(ListValue)
 		var min Value
 		var minVal int
-		for _, i := range list.vals {
+		for _, i := range valAsList(input).vals {
 			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String(), pos)
 			if min == nil || currVal < minVal {
 				min = i
@@ -85,10 +66,9 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"max": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
-		list := input.(ListValue)
 		var max Value
 		var maxVal int
-		for _, i := range list.vals {
+		for _, i := range valAsList(input).vals {
 			currVal := atoi(callDefinition(params.vals[0], i, ListValue{}, pos).String(), pos)
 			if max == nil || currVal > maxVal {
 				max = i
@@ -99,9 +79,8 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"unique": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
-		list := input.(ListValue)
 		ret := ListValue{}
-		for _, i := range list.vals {
+		for _, i := range valAsList(input).vals {
 			b := true
 			for _, j := range ret.vals {
 				if j.String() == i.String() {
@@ -118,15 +97,15 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	"numOccurs": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
 		count := 0
-		switch v := input.(type) {
-		case ListValue:
-			for _, i := range v.vals {
+		vals := valAsList(input).vals
+		if len(vals) == 1 {
+			count = strings.Count(input.String(), params.vals[0].String())
+		} else {
+			for _, i := range vals {
 				if i.String() == params.vals[0].String() {
 					count++
 				}
 			}
-		case StringValue:
-			count = strings.Count(v.val, params.vals[0].String())
 		}
 		return StringValue{strconv.Itoa(count)}
 	},
@@ -184,15 +163,14 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	"join": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
 		ret := StringValue{}
-		vals := input.(ListValue).vals
-		for _, i := range vals {
+		for _, i := range valAsList(input).vals {
 			ret.val += i.String()
 		}
 		return ret
 	},
 	"fold": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
-		v := input.(ListValue)
+		v := valAsList(input)
 		if len(v.vals) == 0 {
 			return NullValue{}
 		}
@@ -205,7 +183,7 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"foldr": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
-		v := input.(ListValue)
+		v := valAsList(input)
 		if len(v.vals) == 0 {
 			return NullValue{}
 		}
@@ -218,7 +196,7 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"foldl": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
-		v := input.(ListValue)
+		v := valAsList(input)
 		if len(v.vals) == 0 {
 			return NullValue{}
 		}
@@ -231,7 +209,7 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"sort": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(1, params, pos)
-		v := input.(ListValue)
+		v := valAsList(input)
 		sort.SliceStable(v.vals, func(i, j int) bool {
 			a := atoi(callDefinition(params.vals[0], v.vals[i], ListValue{}, pos).String(), pos)
 			b := atoi(callDefinition(params.vals[0], v.vals[j], ListValue{}, pos).String(), pos)
@@ -241,21 +219,19 @@ var predeclaredFuncs = map[string]func(Value, ListValue, Position) Value{
 	},
 	"reverse": func(input Value, params ListValue, pos Position) Value {
 		assertParamsNum(0, params, pos)
-		switch v := input.(type) {
-		case ListValue:
+		v := valAsList(input)
+		if len(v.vals) == 1 {
+			r := []rune(input.String())
+			for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
+				r[i], r[j] = r[j], r[i]
+			}
+			return StringValue{string(r)}
+		} else {
 			for i := len(v.vals)/2 - 1; i >= 0; i-- {
 				opp := len(v.vals) - 1 - i
 				v.vals[i], v.vals[opp] = v.vals[opp], v.vals[i]
 			}
 			return v
-		case StringValue:
-			r := []rune(v.val)
-			for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
-				r[i], r[j] = r[j], r[i]
-			}
-			return StringValue{string(r)}
-		default:
-			return input
 		}
 	},
 	"replace": func(input Value, params ListValue, pos Position) Value {
