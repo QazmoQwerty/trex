@@ -6,7 +6,7 @@ For more info read the [language specification](docs/trex-spec.md)
 
 ## Install
 
-Download the relevant binary from here: gitlab.com/QazmoQwerty/trex/releases
+Download the relevant binary from here: https://gitlab.com/QazmoQwerty/trex/releases
 
 Or alternatively if you have go installed use
 
