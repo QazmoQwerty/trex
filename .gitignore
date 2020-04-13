@@ -4,3 +4,4 @@ text.txt
 test.trx
 trex.exe
 dist/
+*.ps1
