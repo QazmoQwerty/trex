@@ -45,3 +45,7 @@ primes(n) => i from 0..n if isPrime(i)
 fold(f) => f([0], fold(#f) [1:]) if len > 1 else [0] if len > 0 else ()
 ```
 
+
+## Status
+
+The project is currently in a fairly usable state. Main thing left to add is documentation/tutorials for how to use the language and the terminal application.
