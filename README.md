@@ -1,6 +1,6 @@
 # Trex
 
-A toy language for quick & easy string manipulation.
+A toy language for quick & easy string manipulation/analysis.
 
 For more info read the [language specification](docs/trex-spec.md)
 
