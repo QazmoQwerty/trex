@@ -6,13 +6,17 @@ For more info read the [language specification](docs/trex-spec.md)
 
 ## Install
 
-Assuming you have go installed:
+Download the relevant binary from here: gitlab.com/QazmoQwerty/trex/releases
+
+Or alternatively if you have go installed use
 
 ```
 go get gitlab.com/QazmoQwerty/trex
 ```
 
-## Code Examples
+and this will build the binary in $GOPATH/bin.
+
+## Examples
 
 ```
 factorial(n) => 1 if n = 0 else n * factorial(n - 1)
