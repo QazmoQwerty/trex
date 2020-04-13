@@ -332,13 +332,13 @@ The following are binary operators:
 
 * All binary operations only accept strings as their operands.
 
-* The range operator 'a..b' returns a list of numbers from a to b, excluding the larger number.
+* The range operator 'a..b' returns a list of numbers from a to b, excluding b.
 
 ```
 >>> 0..5
 0, 1, 2, 3, 4
->>> 5..0
-4, 3, 2, 1, 0
+>>> 5..0    // reverse ranges are not supported
+
 ```
 
 ## Unary Operators

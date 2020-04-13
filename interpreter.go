@@ -175,6 +175,14 @@ func atoi(str string, pos Position) int {
 }
 
 func (this BinaryOperation) interpret(input Value) Value {
+
+	switch this.op.ty {
+	case TT_AND:
+		return createBoolValue(this.left.interpret(input).String() != "" && this.right.interpret(input).String() != "")
+	case TT_OR:
+		return createBoolValue(this.left.interpret(input).String() != "" || this.right.interpret(input).String() != "")
+	}
+
 	left := this.left.interpret(input)
 	right := this.right.interpret(input)
 	leftPos := this.left.getPosition()
@@ -219,10 +227,6 @@ func (this BinaryOperation) interpret(input Value) Value {
 		return createBoolValue(left.String() == right.String())
 	case TT_NOT_EQUAL:
 		return createBoolValue(left.String() != right.String())
-	case TT_AND:
-		return createBoolValue(left.String() != "" && right.String() != "")
-	case TT_OR:
-		return createBoolValue(left.String() != "" || right.String() != "")
 	case TT_ADD:
 		switch l := left.(type) {
 		case ListValue:
@@ -274,19 +278,22 @@ func (this BinaryOperation) interpret(input Value) Value {
 	case TT_RANGE:
 		low := atoi(left.String(), leftPos)
 		high := atoi(right.String(), rightPos)
-		if low > high {
-			list := ListValue{make([]Value, low-high)}
-			for i := 0; i < low-high; i++ {
-				list.vals[i] = StringValue{strconv.Itoa(low - i - 1)}
-			}
-			return list
-		} else {
-			list := ListValue{make([]Value, high-low)}
-			for i := 0; i+low < high; i++ {
-				list.vals[i] = StringValue{strconv.Itoa(i + low)}
-			}
-			return list
+		// if low > high {
+		// 	list := ListValue{make([]Value, low-high)}
+		// 	for i := 0; i < low-high; i++ {
+		// 		list.vals[i] = StringValue{strconv.Itoa(low - i - 1)}
+		// 	}
+		// 	return list
+		// } else {
+		if low >= high {
+			return ListValue{}
 		}
+		list := ListValue{make([]Value, high-low)}
+		for i := 0; i+low < high; i++ {
+			list.vals[i] = StringValue{strconv.Itoa(i + low)}
+		}
+		return list
+		// }
 	case TT_SMALLER:
 		return createBoolValue(atoi(left.String(), leftPos) < atoi(right.String(), rightPos))
 	case TT_SMALLER_EQUAL:
