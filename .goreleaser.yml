@@ -7,7 +7,18 @@ before:
 builds:
 - env:
   - CGO_ENABLED=0
-  - GITLAB_TOKEN="bhXAedeniuqcd8NeMEzQ"
+- binary: trex
+  goos:
+    - windows
+    - darwin
+    - linux
+    - freebsd
+    - netbsd
+  goarch:
+    - amd64
+    - 386
+    - arm
+    - arm64
 archives:
 - replacements:
     darwin: Darwin
