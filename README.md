@@ -22,28 +22,28 @@ Trex runs in a CLI, and is meant to be used for simple tasks involving string ma
 
 ## Examples
 
-```
+```c#
 factorial(n) => 1 if n = 0 else n * factorial(n - 1)
 ```
 
-```
+```c#
 max(#len) words // longest word in a string
 ```
 
-```
+```c#
 // For input "aabdbg" output would be (a, 2), (b, 2), (d, 1), (g, 1)
 c, numoccurs(c) for c in unique chars
 ```
 
 
-```
+```c#
 // primes(n) returns all prime numbers from 0 to n
 isprime(n) => count (i from 2..n if n % i = 0) = 0
 primes(n) => i from 0..n if isprime(i)
 ```
 
 
-```
+```c#
 sum => fold(a,b -> a+b) // sum of numbers in list
 sum (1, 2, 3, 4, 5, 6) // will output 21
 ```
