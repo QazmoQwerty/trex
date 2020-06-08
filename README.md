@@ -51,7 +51,7 @@ sum (1, 2, 3, 4, 5, 6) // will output 21
 
 ## Status
 
-The project is currently in a fairly usable state. There are a few issues and other than that teh main thing left to add is documentation/tutorials for how to use the language and the terminal application.
+The project is currently in a fairly usable state. There are a few issues and other than that the main thing left to add is documentation/tutorials for how to use the language and the terminal application.
 
 ## Issues
 
