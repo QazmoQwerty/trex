@@ -47,7 +47,20 @@ primes(n) => i from 0..n if isprime(i)
 sum => fold(a,b -> a+b) // sum of numbers in list
 sum (1, 2, 3, 4, 5, 6) // will output 21
 ```
+## Using the CLI
 
+```
+trex <input> <files> [flags]
+```
+* **input:** Either a file, or text inside square brackets `[]`.
+
+* **files:** Files to be run. If no files are specified trex will run in interpreter mode.
+
+* **flags:** 
+    * `-h`: show help for how to use the CLI.
+    * `-i`: run interpreter after code files have been executed.
+    * `-v`: show version and quit immediately.
+    * `-hl`: turn on syntax highlighting in the interpreter.
 
 ## Status
 
